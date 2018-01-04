@@ -292,10 +292,22 @@ namespace Serial_IAP
                         startInf[9] = 0x0a;
                         serialPort1.Write(startInf, 0, startInf.Length);
                     }
-                    readstring = serialPort1.ReadExisting();
-                    Console.WriteLine($"readstring = {readstring}");
-                    Delay(300);
-
+                    //readstring = serialPort1.ReadExisting();
+                    //Console.WriteLine($"readstring = {readstring}");
+                    //Delay(300);
+                    timer1.Start();
+                    time = 0;
+                    do
+                    {
+                        if (time >= 3 * 10)
+                        {
+                            State_Text($"超时0", 3);
+                            time = 0;
+                            timer1.Stop();
+                            goto ERRORandOK;
+                        }
+                        readstring = serialPort1.ReadExisting();
+                    } while (!readstring.Contains("IAPOK"));
                     byte[] HeadInf = new byte[6];
                     HeadInf[0] = 0x7f;
                     HeadInf[1] = 0x02;
