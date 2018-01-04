@@ -262,7 +262,37 @@ namespace Serial_IAP
 
             string readstring = "";
             toolStripStatusLabel3.Text = "";
-
+            if (IsAuto == false)
+            {
+                byte[] startInf = new byte[10];
+                startInf[0] = 0x52;
+                startInf[1] = 0x45;
+                startInf[2] = 0x49;
+                startInf[3] = 0x41;
+                startInf[4] = 0x50;
+                startInf[5] = 0x28;
+                startInf[6] = 0x29;
+                startInf[7] = 0x3b;
+                startInf[8] = 0x0d;
+                startInf[9] = 0x0a;
+                serialPort1.Write(startInf, 0, startInf.Length);
+            }
+            //readstring = serialPort1.ReadExisting();
+            //Console.WriteLine($"readstring = {readstring}");
+            //Delay(300);
+            timer1.Start();
+            time = 0;
+            do
+            {
+                if (time >= 3 * 10)
+                {
+                    State_Text($"超时0", 3);
+                    time = 0;
+                    timer1.Stop();
+                    goto ERRORandOK;
+                }
+                readstring = serialPort1.ReadExisting();
+            } while (!readstring.Contains("IAPOK"));
             foreach (FileInfo fi in filelist)
             {
                 loadingfile = fi.FullName;
@@ -277,37 +307,7 @@ namespace Serial_IAP
                     fileStream.Seek(0, SeekOrigin.Begin);
                     UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
 
-                    if (IsAuto == false)
-                    {
-                        byte[] startInf = new byte[10];
-                        startInf[0] = 0x52;
-                        startInf[1] = 0x45;
-                        startInf[2] = 0x49;
-                        startInf[3] = 0x41;
-                        startInf[4] = 0x50;
-                        startInf[5] = 0x28;
-                        startInf[6] = 0x29;
-                        startInf[7] = 0x3b;
-                        startInf[8] = 0x0d;
-                        startInf[9] = 0x0a;
-                        serialPort1.Write(startInf, 0, startInf.Length);
-                    }
-                    //readstring = serialPort1.ReadExisting();
-                    //Console.WriteLine($"readstring = {readstring}");
-                    //Delay(300);
-                    timer1.Start();
-                    time = 0;
-                    do
-                    {
-                        if (time >= 3 * 10)
-                        {
-                            State_Text($"超时0", 3);
-                            time = 0;
-                            timer1.Stop();
-                            goto ERRORandOK;
-                        }
-                        readstring = serialPort1.ReadExisting();
-                    } while (!readstring.Contains("IAPOK"));
+                    
                     byte[] HeadInf = new byte[6];
                     HeadInf[0] = 0x7f;
                     HeadInf[1] = 0x02;
