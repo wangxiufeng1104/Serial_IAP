@@ -39,14 +39,14 @@
             this.下载 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.DelSelect = new System.Windows.Forms.Button();
+            this.ClearFile = new System.Windows.Forms.Button();
+            this.List_LoadFile = new System.Windows.Forms.ListBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.List_LoadFile = new System.Windows.Forms.ListBox();
-            this.ClearFile = new System.Windows.Forms.Button();
-            this.DelSelect = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -138,6 +138,38 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "第二步：选择文件";
             // 
+            // DelSelect
+            // 
+            this.DelSelect.Enabled = false;
+            this.DelSelect.Location = new System.Drawing.Point(14, 50);
+            this.DelSelect.Name = "DelSelect";
+            this.DelSelect.Size = new System.Drawing.Size(93, 23);
+            this.DelSelect.TabIndex = 3;
+            this.DelSelect.Text = "删除选中文件";
+            this.DelSelect.UseVisualStyleBackColor = true;
+            this.DelSelect.Click += new System.EventHandler(this.DelSelect_Click);
+            // 
+            // ClearFile
+            // 
+            this.ClearFile.Enabled = false;
+            this.ClearFile.Location = new System.Drawing.Point(14, 82);
+            this.ClearFile.Name = "ClearFile";
+            this.ClearFile.Size = new System.Drawing.Size(93, 23);
+            this.ClearFile.TabIndex = 2;
+            this.ClearFile.Text = "清空文件";
+            this.ClearFile.UseVisualStyleBackColor = true;
+            this.ClearFile.Click += new System.EventHandler(this.ClearFile_Click);
+            // 
+            // List_LoadFile
+            // 
+            this.List_LoadFile.FormattingEnabled = true;
+            this.List_LoadFile.ItemHeight = 12;
+            this.List_LoadFile.Location = new System.Drawing.Point(118, 18);
+            this.List_LoadFile.Name = "List_LoadFile";
+            this.List_LoadFile.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.List_LoadFile.Size = new System.Drawing.Size(339, 88);
+            this.List_LoadFile.TabIndex = 1;
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.下载);
@@ -178,36 +210,6 @@
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
-            // 
-            // List_LoadFile
-            // 
-            this.List_LoadFile.FormattingEnabled = true;
-            this.List_LoadFile.ItemHeight = 12;
-            this.List_LoadFile.Location = new System.Drawing.Point(118, 18);
-            this.List_LoadFile.Name = "List_LoadFile";
-            this.List_LoadFile.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.List_LoadFile.Size = new System.Drawing.Size(339, 88);
-            this.List_LoadFile.TabIndex = 1;
-            // 
-            // ClearFile
-            // 
-            this.ClearFile.Location = new System.Drawing.Point(14, 82);
-            this.ClearFile.Name = "ClearFile";
-            this.ClearFile.Size = new System.Drawing.Size(93, 23);
-            this.ClearFile.TabIndex = 2;
-            this.ClearFile.Text = "清空文件";
-            this.ClearFile.UseVisualStyleBackColor = true;
-            this.ClearFile.Click += new System.EventHandler(this.ClearFile_Click);
-            // 
-            // DelSelect
-            // 
-            this.DelSelect.Location = new System.Drawing.Point(14, 50);
-            this.DelSelect.Name = "DelSelect";
-            this.DelSelect.Size = new System.Drawing.Size(93, 23);
-            this.DelSelect.TabIndex = 3;
-            this.DelSelect.Text = "删除选中文件";
-            this.DelSelect.UseVisualStyleBackColor = true;
-            this.DelSelect.Click += new System.EventHandler(this.DelSelect_Click);
             // 
             // Serial
             // 

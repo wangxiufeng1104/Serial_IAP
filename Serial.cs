@@ -37,6 +37,7 @@ namespace Serial_IAP
         static int ProgramOKNum = 0;     //成功下载程序的个数
         static int ProgramErrorNum = 0;  //失败下载程序的个数
         static List<FileInfo> filelist = new List<FileInfo> { };
+        List<string> fileFailed = new List<string> { };
         string loadingfile = string.Empty;
         Restype restype = Restype.NONE;
 
@@ -80,6 +81,8 @@ namespace Serial_IAP
                     serialPort1.Open();
                     打开串口.Text = "关闭串口";
                     添加下载文件.Enabled = true;
+                    DelSelect.Enabled = true;
+                    ClearFile.Enabled = true;
                     下载.Enabled = false;
                 }
                 catch(Exception ex)
@@ -97,6 +100,8 @@ namespace Serial_IAP
                     打开串口.Text = "打开串口";
                 
                 添加下载文件.Enabled = false;
+                DelSelect.Enabled = false;
+                ClearFile.Enabled = false;
                 下载.Enabled = false;
             }
         }
@@ -355,7 +360,6 @@ namespace Serial_IAP
                             HeadInf[2] = 0x0c;
                             break;
                     }
-                    
                     serialPort1.Write(HeadInf, 0, HeadInf.Length);
                     if (loadingfile != "")
                     {
@@ -373,9 +377,10 @@ namespace Serial_IAP
                                     //MessageBox.Show("超时2", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                                     State_Text($"超时2", 3);
                                     ProgramErrorNum++;
-                                    State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
+                                    //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                                     time = 0;
                                     timer1.Stop();
+                                    fileFailed.Add(fi.Name);
                                     goto ERRORandOK;
                                 }
                                 readstring = serialPort1.ReadExisting();
@@ -389,10 +394,11 @@ namespace Serial_IAP
                             {
                                 time = 0;
                                 timer1.Stop();
+                                fileFailed.Add(fi.Name);
                                 //MessageBox.Show($"数据错误！错误的数据%{readstring}%", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                                 State_Text($"数据错误！错误的数据%{readstring}%", 3);
                                 ProgramErrorNum++;
-                                State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
+                                //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
 
                                 goto ERRORandOK;
                             }
@@ -409,8 +415,9 @@ namespace Serial_IAP
                             catch (Exception ex)
                             {
                                 State_Text($"Error:{ex.Message}", 3);
+                                fileFailed.Add(fi.Name);
                                 ProgramErrorNum++;
-                                State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
+                                //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                             }
                             time = 0;
                         }
@@ -422,26 +429,27 @@ namespace Serial_IAP
                                 //MessageBox.Show("超时", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                                 State_Text($"超时", 3);
                                 ProgramErrorNum++;
-                                State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
+                                //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                                 time = 0;
                                 timer1.Stop();
-
+                                fileFailed.Add(fi.Name);
                                 goto ERRORandOK;
                             }
                             readstring = serialPort1.ReadExisting();
-                            Console.WriteLine("收到的数据包 = {0}", readstring);
+                            //Console.WriteLine("收到的数据包 = {0}", readstring);
 
                         } while (readstring == "");
 
                         readstring = readstring.Replace("\n", "");
-                        Console.WriteLine($"readstring = {readstring}");
+                        //Console.WriteLine($"readstring = {readstring}");
                         if (readstring.Contains("CRC Failed"))
                         {
                             time = 0;
                             timer1.Stop();
                             //MessageBox.Show("更新失败！", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                             ProgramErrorNum++;
-                            State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
+                            fileFailed.Add(fi.Name);
+                            //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                         }
                         else if (readstring.Contains("UPDATE SUCCESS"))
                         {
@@ -449,7 +457,7 @@ namespace Serial_IAP
                             timer1.Stop();
                             //MessageBox.Show("更新成功！", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
                             ProgramOKNum++;
-                            State_Text($"更新成功，成功个数{ProgramOKNum}", 1);
+                            //State_Text($"更新成功，成功个数{ProgramOKNum}", 1);
                         }
                     }
                 }
@@ -458,12 +466,25 @@ namespace Serial_IAP
                     State_Text($"Error:{ex.Message}", 3);
                 }
             }
+            string filefa = string.Empty;
+            if (fileFailed.Count >= 1)//有更新失败的文件
+            {
+                foreach(string s in fileFailed)
+                {
+                    filefa += s;
+                    filefa += "\n";
+                }
+                MessageBox.Show(filefa,"更新失败列表",MessageBoxButtons.OKCancel,MessageBoxIcon.Information);
+                fileFailed.Clear();
+            }
+            else      //更新成功
+            {
+                serialPort1.Write($"{0x8f}");
+            }
  ERRORandOK:
             Delay(300);
             progressBar1.Value = 0;
             readstring = serialPort1.ReadExisting();
-            Console.WriteLine($"readstring = {readstring}");
-            Console.WriteLine($"358 IsLoading = {IsLoading}");
             IsLoading = false;
             return;
         }
