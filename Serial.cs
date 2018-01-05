@@ -262,8 +262,6 @@ namespace Serial_IAP
                 toolStripStatusLabel3.Text = str;
             }
         }
-
- 
         public void Programing_Thread(bool IsAuto)
         {
             FileStream fileStream = null;
