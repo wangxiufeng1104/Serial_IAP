@@ -93,7 +93,7 @@
             // 
             // openFileDialog1
             // 
-            this.openFileDialog1.Filter = "程序升级文件(*.bin)|*.bin|字库文件(*.dzk)|*.dzk|图标文件(*.ico)|*.ico|所有文件|*.*";
+            this.openFileDialog1.Filter = "所有文件|*.*|程序升级文件(*.bin)|*.bin|字库文件(*.dzk)|*.dzk|图标文件(*.ico)|*.ico";
             this.openFileDialog1.Multiselect = true;
             // 
             // progressBar1

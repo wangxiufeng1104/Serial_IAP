@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.IO;
 using System.Threading;
+
 namespace Serial_IAP
 {
     public enum Restype
@@ -90,8 +91,8 @@ namespace Serial_IAP
                     MessageBox.Show(ex.Message);
                 }
                 //成功打开串口后创建串口监听线程
-                C_Monitor_Thread = new Thread(new ThreadStart(Check_Common));
-                C_Monitor_Thread.Start();
+                //C_Monitor_Thread = new Thread(new ThreadStart(Check_Common));
+                //C_Monitor_Thread.Start();
             }
             else
             {
@@ -226,20 +227,25 @@ namespace Serial_IAP
         private void 下载_Click(object sender, EventArgs e)
         {
             IsLoading = true;
-            C_Monitor_Thread.Suspend();
+            //C_Monitor_Thread.Suspend();
             Programing_Thread(false);
-            C_Monitor_Thread.Resume();
+            //C_Monitor_Thread.Resume();
             IsLoading = false;
+
         }
 
         private void Download_progress(int count)
         {
-            progressBar1.Value = progressBar1.Value + count;
+            //progressBar1.Value = progressBar1.Value + count;
+            progressBar1.Value = count;
+            progressBar1.Refresh();
+            
+            Console.WriteLine($"progressBar1.Value = {progressBar1.Value}");
         }
         private void progressBar1_Max_Set(int max)
         {
-
             progressBar1.Maximum = max;
+            Console.WriteLine($"progressBar1.Maximum = {progressBar1.Maximum}");
         }
         private void State_Text(string str,int i)
         {
@@ -256,7 +262,9 @@ namespace Serial_IAP
                 toolStripStatusLabel3.Text = str;
             }
         }
-        private void Programing_Thread(bool IsAuto)
+
+ 
+        public void Programing_Thread(bool IsAuto)
         {
             FileStream fileStream = null;
 
@@ -299,6 +307,7 @@ namespace Serial_IAP
                 Console.WriteLine(loadingfile);
                 try
                 {
+                    toolStripStatusLabel2.Text = $"当前下载文件{fi.Name}";
                     fileStream = new FileStream(loadingfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     progressBar1_Max_Set((int)fileStream.Length);
                     byte[] buffur = new byte[fileStream.Length];
@@ -419,10 +428,12 @@ namespace Serial_IAP
                             {
                                 count = 2048;
                             }
-                            Download_progress(count);
+                            
                             try
                             {
                                 serialPort1.Write(buffur, i, count);
+                                Download_progress(count+i);
+
                             }
                             catch (Exception ex)
                             {
@@ -432,8 +443,9 @@ namespace Serial_IAP
                                 //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                             }
                             time = 0;
+                            Delay(300);
                         }
-                        Delay(300);
+                        
                         do
                         {
                             if (time >= 2 * 10)
@@ -458,7 +470,6 @@ namespace Serial_IAP
                         {
                             time = 0;
                             timer1.Stop();
-                            //MessageBox.Show("更新失败！", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                             ProgramErrorNum++;
                             fileFailed.Add(fi.Name);
                             //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
@@ -467,9 +478,9 @@ namespace Serial_IAP
                         {
                             time = 0;
                             timer1.Stop();
-                            //MessageBox.Show("更新成功！", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
                             ProgramOKNum++;
-                            //State_Text($"更新成功，成功个数{ProgramOKNum}", 1);
+                            State_Text($"{ProgramOKNum}下载成功", 1);
+                            progressBar1.Value = 0;
                         }
                     }
                 }
@@ -495,7 +506,7 @@ namespace Serial_IAP
             }
  ERRORandOK:
             Delay(300);
-            progressBar1.Value = 0;
+            
             readstring = serialPort1.ReadExisting();
             IsLoading = false;
             return;
