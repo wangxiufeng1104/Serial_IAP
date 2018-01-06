@@ -475,7 +475,7 @@ namespace Serial_IAP
 
                         readstring = readstring.Replace("\n", "");
                         //Console.WriteLine($"readstring = {readstring}");
-                        if (readstring.Contains("CRC Failed"))
+                        if (readstring.Contains("Failed"))
                         {
                             time = 0;
                             timer1.Stop();
@@ -483,7 +483,7 @@ namespace Serial_IAP
                             fileFailed.Add(fi.Name);
                             //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                         }
-                        else if (readstring.Contains("UPDATE SUCCESS"))
+                        else if (readstring.Contains("SUCCESS"))
                         {
                             time = 0;
                             timer1.Stop();
