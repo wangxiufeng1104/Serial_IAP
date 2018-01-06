@@ -28,7 +28,8 @@ namespace Serial_IAP
         KO_24,
         KO_32,
         KO_48,
-        ico = 0x50
+        ico = 0x50,
+        bin
     }
 
 
@@ -147,13 +148,24 @@ namespace Serial_IAP
                 {
                     if(false == List_LoadFile.Items.Contains(fi))
                     {
-                        List_LoadFile.Items.Add(fi);
+
+                        
                         FileInfo fileInfo = new FileInfo(fi);
-                        if (fileInfo.Exists == true)
-                            filelist.Add(fileInfo);
+                        restype = LoadFiletype(fileInfo);
+                        if (restype == Restype.NONE)
+                        {
+                            MessageBox.Show($"不识别文件{fileInfo}", "警告", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            List_LoadFile.Items.Add(fi);
+                            if (fileInfo.Exists == true)
+                                filelist.Add(fileInfo);
+                        } 
                     }  
                 }
                 int binnum = 0;
+                //检查bin文件
                 foreach(FileInfo fi in filelist)
                 {
                     if (fi.Extension == ".bin")
@@ -166,8 +178,10 @@ namespace Serial_IAP
                     List_LoadFile.Items.Clear();
                     return;
                 }
+                    
                 file_sort(); //filelist进行排序
                 progressBar1.Value = 0;
+
                 下载.Enabled = true;
             }
         }
@@ -397,7 +411,6 @@ namespace Serial_IAP
                         {
                             Console.WriteLine(i);
                             Console.WriteLine(fileStream.Length);
-                            Delay(300);
                             timer1.Start();
                             time = 0;
                             do
@@ -416,7 +429,7 @@ namespace Serial_IAP
                                 readstring = serialPort1.ReadExisting();
                             } while (readstring == "");
                             Console.WriteLine("收到的数据包 = {0}", readstring);
-                            if (readstring.Contains("Wait data"))
+                            if (readstring.Contains("W"))
                             {
                                 time = 0;
                             }
@@ -425,11 +438,8 @@ namespace Serial_IAP
                                 time = 0;
                                 timer1.Stop();
                                 fileFailed.Add(fi.Name);
-                                //MessageBox.Show($"数据错误！错误的数据%{readstring}%", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                                 State_Text($"数据错误！错误的数据%{readstring}%", 3);
                                 ProgramErrorNum++;
-                                //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
-
                                 goto ERRORandOK;
                             }
                             int count = (int)fileStream.Length - i;
@@ -448,7 +458,6 @@ namespace Serial_IAP
                                 State_Text($"Error:{ex.Message}", 3);
                                 fileFailed.Add(fi.Name);
                                 ProgramErrorNum++;
-                                //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                             }
                             time = 0;
                            
@@ -458,10 +467,8 @@ namespace Serial_IAP
                         {
                             if (time >= 2 * 10)
                             {
-                                //MessageBox.Show("超时", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                                 State_Text($"超时", 3);
                                 ProgramErrorNum++;
-                                //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                                 time = 0;
                                 timer1.Stop();
                                 fileFailed.Add(fi.Name);
@@ -480,7 +487,6 @@ namespace Serial_IAP
                             timer1.Stop();
                             ProgramErrorNum++;
                             fileFailed.Add(fi.Name);
-                            //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                         }
                         else if (readstring.Contains("SUCCESS"))
                         {
@@ -510,7 +516,6 @@ namespace Serial_IAP
             }
             else      //更新成功
             {
-                //serialPort1.Write($"{0x8f}");
                 State_Text($"更新成功", 3);
             }
             ERRORandOK:
@@ -670,9 +675,13 @@ namespace Serial_IAP
                             return Restype.NONE;
                         }
                     }
+                    return Restype.NONE;
+                case ".bin":
+                    return Restype.bin;
+                default:
                     return Restype.NONE; 
+                
             }
-            return Restype.NONE;
         }
     }
 }
