@@ -451,9 +451,9 @@ namespace Serial_IAP
                                 //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                             }
                             time = 0;
-                            Delay(300);
+                           
                         }
-                        
+                        Delay(300);
                         do
                         {
                             if (time >= 2 * 10)
@@ -510,9 +510,10 @@ namespace Serial_IAP
             }
             else      //更新成功
             {
-                serialPort1.Write($"{0x8f}");
+                //serialPort1.Write($"{0x8f}");
+                State_Text($"更新成功", 3);
             }
- ERRORandOK:
+            ERRORandOK:
             Delay(300);
             
             readstring = serialPort1.ReadExisting();
