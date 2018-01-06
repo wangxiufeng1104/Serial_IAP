@@ -15,22 +15,24 @@ namespace Serial_IAP
 {
     public enum Restype
     {
-        NONE,
-        bin,
-        ico,
-        ASCII16,
+        NONE = 0x00,
+        ASCII16 = 0x10,
         ASCII24,
         ASCII32,
         ASCII48,
-        GB2312_16,
+        GB2312_16 = 0x20,
         GB2312_24,
         GB2312_32,
         GB2312_48,
-        KO_16,
+        KO_16 = 0x30,
         KO_24,
         KO_32,
-        KO_48
+        KO_48,
+        ico = 0x50
     }
+
+
+
     public partial  class Serial : Form
     {
         private Thread C_Monitor_Thread;   //串口监听线程
@@ -151,9 +153,20 @@ namespace Serial_IAP
                             filelist.Add(fileInfo);
                     }  
                 }
-                
-                //Text_LoadFile.Text = openFileDialog1.FileName;
-                //LoadFile = openFileDialog1.FileName;
+                int binnum = 0;
+                foreach(FileInfo fi in filelist)
+                {
+                    if (fi.Extension == ".bin")
+                        binnum++;
+                }
+                if(binnum > 1)
+                {
+                    MessageBox.Show("不允许同时下载两个升级文件（.bin）,请确定后重新添加", "警告", MessageBoxButtons.OKCancel,MessageBoxIcon.Information);
+                    filelist.Clear();
+                    List_LoadFile.Items.Clear();
+                    return;
+                }
+                file_sort(); //filelist进行排序
                 progressBar1.Value = 0;
                 下载.Enabled = true;
             }
@@ -265,121 +278,116 @@ namespace Serial_IAP
         public void Programing_Thread(bool IsAuto)
         {
             FileStream fileStream = null;
-
             string readstring = "";
             toolStripStatusLabel3.Text = "";
-            if (IsAuto == false)
-            {
-                byte[] startInf = new byte[10];
-                startInf[0] = 0x52;
-                startInf[1] = 0x45;
-                startInf[2] = 0x49;
-                startInf[3] = 0x41;
-                startInf[4] = 0x50;
-                startInf[5] = 0x28;
-                startInf[6] = 0x29;
-                startInf[7] = 0x3b;
-                startInf[8] = 0x0d;
-                startInf[9] = 0x0a;
-                serialPort1.Write(startInf, 0, startInf.Length);
-            }
-            //readstring = serialPort1.ReadExisting();
-            //Console.WriteLine($"readstring = {readstring}");
-            //Delay(300);
-            timer1.Start();
-            time = 0;
-            do
-            {
-                if (time >= 3 * 10)
-                {
-                    State_Text($"超时0", 3);
-                    time = 0;
-                    timer1.Stop();
-                    goto ERRORandOK;
-                }
-                readstring = serialPort1.ReadExisting();
-            } while (!readstring.Contains("IAPOK"));
+
             foreach (FileInfo fi in filelist)
             {
                 loadingfile = fi.FullName;
-                Console.WriteLine(loadingfile);
-                try
+                toolStripStatusLabel2.Text = $"当前下载文件{fi.Name}";
+                fileStream = new FileStream(loadingfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                progressBar1_Max_Set((int)fileStream.Length);
+                byte[] buffur = new byte[fileStream.Length];
+                fileStream.Read(buffur, 0, buffur.Length);
+                // 设置当前流的位置为流的开始 
+                fileStream.Seek(0, SeekOrigin.Begin);
+                byte[] HeadInf = new byte[5];
+                //第一步先判断文件类型
+                if (fi.Extension != ".bin")
                 {
-                    toolStripStatusLabel2.Text = $"当前下载文件{fi.Name}";
-                    fileStream = new FileStream(loadingfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    progressBar1_Max_Set((int)fileStream.Length);
-                    byte[] buffur = new byte[fileStream.Length];
-                    fileStream.Read(buffur, 0, buffur.Length);
-                    // 设置当前流的位置为流的开始 
-                    fileStream.Seek(0, SeekOrigin.Begin);
-                    UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
-
-                    
-                    byte[] HeadInf = new byte[6];
-                    HeadInf[0] = 0x7f;
-                    HeadInf[1] = 0x02;
-                    HeadInf[2] = 0x00;
-                    HeadInf[3] = (byte)(fileStream.Length >> 16);
-                    HeadInf[4] = (byte)(fileStream.Length >> 8);
-                    HeadInf[5] = (byte)fileStream.Length;
                     restype = LoadFiletype(fi);
-
+                    Byte funm = 0;
+                    UInt32 tlen = (UInt32)fileStream.Length;
                     switch (restype)
                     {
                         case Restype.NONE:
                             continue;
-                        case Restype.bin:
-                            HeadInf[1] = 0x01;
-                            HeadInf[2] = (byte)(fileStream.Length >> 8);
-                            HeadInf[3] = (byte)fileStream.Length;
-                            HeadInf[4] = (byte)(CRCResult >> 8);
-                            HeadInf[5] = (byte)CRCResult;
-                            break;
                         case Restype.ico:
-                            HeadInf[1] = 0x03;
-                            HeadInf[2] = (byte)(fileStream.Length >> 24);
-                            HeadInf[3] = (byte)(fileStream.Length >> 16);
-                            HeadInf[4] = (byte)(fileStream.Length >> 8);
-                            HeadInf[5] = (byte)fileStream.Length;
+                            funm = 0x50;
                             break;
                         case Restype.ASCII16:
-                            HeadInf[2] = 0x01;                         
+                            funm = 0x10;
                             break;
                         case Restype.ASCII24:
-                            HeadInf[2] = 0x02;
+                            funm = 0x11;
                             break;
                         case Restype.ASCII32:
-                            HeadInf[2] = 0x03;
+                            funm = 0x12;
                             break;
                         case Restype.ASCII48:
-                            HeadInf[2] = 0x04;
+                            funm = 0x13;
                             break;
                         case Restype.GB2312_16:
-                            HeadInf[2] = 0x05;
+                            funm = 0x20;
                             break;
                         case Restype.GB2312_24:
-                            HeadInf[2] = 0x06;
+                            funm = 0x21;
                             break;
                         case Restype.GB2312_32:
-                            HeadInf[2] = 0x07;
+                            funm = 0x22;
                             break;
                         case Restype.GB2312_48:
-                            HeadInf[2] = 0x08;
+                            funm = 0x23;
                             break;
                         case Restype.KO_16:
-                            HeadInf[2] = 0x09;
+                            funm = 0x30;
                             break;
                         case Restype.KO_24:
-                            HeadInf[2] = 0x0a;
+                            funm = 0x31;
                             break;
                         case Restype.KO_32:
-                            HeadInf[2] = 0x0b;
+                            funm = 0x32;
                             break;
                         case Restype.KO_48:
-                            HeadInf[2] = 0x0c;
+                            funm = 0x33;
+                            break;
+                        default:
                             break;
                     }
-                    serialPort1.Write(HeadInf, 0, HeadInf.Length);
+                    string incstr = string.Format($"DOW({funm},{tlen})\r\n");
+                    serialPort1.Write(incstr);
+                }
+                else
+                {
+                    if (IsAuto == false)
+                    {
+                        byte[] startInf = new byte[10];
+                        startInf[0] = 0x52;
+                        startInf[1] = 0x45;
+                        startInf[2] = 0x49;
+                        startInf[3] = 0x41;
+                        startInf[4] = 0x50;
+                        startInf[5] = 0x28;
+                        startInf[6] = 0x29;
+                        startInf[7] = 0x3b;
+                        startInf[8] = 0x0d;
+                        startInf[9] = 0x0a;
+                        serialPort1.Write(startInf, 0, 10);
+                    }
+                    timer1.Start();
+                    time = 0;
+                    do
+                    {
+                        if (time >= 3 * 10)
+                        {
+                            State_Text($"超时0", 3);
+                            time = 0;
+                            timer1.Stop();
+                            goto ERRORandOK;
+                        }
+                        readstring = serialPort1.ReadExisting();
+                    } while (!readstring.Contains("IAPOK"));
+                    UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
+                    
+                    HeadInf[0] = 0x7f;
+                    HeadInf[1] = (byte)(fileStream.Length >> 8);
+                    HeadInf[2] = (byte)fileStream.Length;
+                    HeadInf[3] = (byte)(CRCResult >> 8);
+                    HeadInf[4] = (byte)(byte)CRCResult;
+                    serialPort1.Write(HeadInf, 0, 5);
+                }
+                try
+                {
                     if (loadingfile != "")
                     {
                         for (int i = 0; i < fileStream.Length; i += 2048)
@@ -405,7 +413,7 @@ namespace Serial_IAP
                                 readstring = serialPort1.ReadExisting();
                             } while (readstring == "");
                             Console.WriteLine("收到的数据包 = {0}", readstring);
-                            if (readstring.Contains("status: Wait data"))
+                            if (readstring.Contains("Wait data"))
                             {
                                 time = 0;
                             }
@@ -554,12 +562,38 @@ namespace Serial_IAP
             if(filelist.Count >= 1)
                 filelist.Clear();
         }
+        private void file_sort()  //对文件列表进行排序
+        {
+            FileInfo temp = null;
+            int BinIndex = 0;    //bin文件所在的位置的索引
+            int i = 0;
+            bool BinExists = false;
+            if (filelist.Count == 0)
+                return;
+           
+            foreach(FileInfo fi in filelist)
+            {
+
+                if (fi.Extension == ".bin")
+                {
+                    BinIndex = i;//记录bin文件的位置
+                    if (BinIndex == filelist.Count - 1)  //如果就在最后不用处理的
+                        return;           
+                    BinExists = true;//判断文件是否存在 
+                    temp = fi;
+                    break;
+                }
+                i++;
+            }
+            if (BinExists == false)
+                return;            //不存在bin文件
+            filelist.RemoveAt(BinIndex);
+            filelist.Add(temp);
+        }
         Restype LoadFiletype(FileInfo fileinfo)
         {
             switch(fileinfo.Extension)
             {
-                case ".bin":
-                    return Restype.bin;
                 case ".ico":
                     return Restype.ico;
                 case ".dzk":
