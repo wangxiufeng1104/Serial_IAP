@@ -437,7 +437,6 @@ namespace Serial_IAP
                             {
                                 count = datalen;
                             }
-                            
                             try
                             {
                                 serialPort1.Write(buffur, i, count);
@@ -518,6 +517,7 @@ namespace Serial_IAP
             
             readstring = serialPort1.ReadExisting();
             IsLoading = false;
+            fileFailed.Clear();
             return;
         }
         int time = 0;
