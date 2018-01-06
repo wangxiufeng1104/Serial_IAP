@@ -280,6 +280,7 @@ namespace Serial_IAP
             FileStream fileStream = null;
             string readstring = "";
             toolStripStatusLabel3.Text = "";
+            int datalen = 0;
 
             foreach (FileInfo fi in filelist)
             {
@@ -297,6 +298,7 @@ namespace Serial_IAP
                 {
                     restype = LoadFiletype(fi);
                     Byte funm = 0;
+                    datalen = 256;
                     UInt32 tlen = (UInt32)fileStream.Length;
                     switch (restype)
                     {
@@ -349,6 +351,7 @@ namespace Serial_IAP
                 }
                 else
                 {
+                    datalen = 2048;
                     if (IsAuto == false)
                     {
                         byte[] startInf = new byte[10];
@@ -390,7 +393,7 @@ namespace Serial_IAP
                 {
                     if (loadingfile != "")
                     {
-                        for (int i = 0; i < fileStream.Length; i += 2048)
+                        for (int i = 0; i < fileStream.Length; i += datalen)
                         {
                             Console.WriteLine(i);
                             Console.WriteLine(fileStream.Length);
@@ -430,9 +433,9 @@ namespace Serial_IAP
                                 goto ERRORandOK;
                             }
                             int count = (int)fileStream.Length - i;
-                            if (count > 2048)
+                            if (count > datalen)
                             {
-                                count = 2048;
+                                count = datalen;
                             }
                             
                             try
