@@ -181,7 +181,7 @@ namespace Serial_IAP
                     
                 file_sort(); //filelist进行排序
                 progressBar1.Value = 0;
-
+                restype = Restype.NONE;
                 下载.Enabled = true;
             }
         }
@@ -308,7 +308,8 @@ namespace Serial_IAP
                 fileStream.Seek(0, SeekOrigin.Begin);
                 byte[] HeadInf = new byte[5];
                 //第一步先判断文件类型
-                if (fi.Extension != ".bin")
+                string Exten = fi.Extension.ToLower();
+                if (Exten != ".bin")
                 {
                     restype = LoadFiletype(fi);
                     Byte funm = 0;
@@ -462,10 +463,10 @@ namespace Serial_IAP
                             time = 0;
                            
                         }
-                        Delay(300);
+                        //Delay(300);
                         do
                         {
-                            if (time >= 2 * 10)
+                            if (time >= 10 * 10)
                             {
                                 State_Text($"超时", 3);
                                 ProgramErrorNum++;
@@ -609,7 +610,8 @@ namespace Serial_IAP
         }
         Restype LoadFiletype(FileInfo fileinfo)
         {
-            switch(fileinfo.Extension)
+            string exten = fileinfo.Extension.ToLower();
+            switch(exten)
             {
                 case ".ico":
                     return Restype.ico;
