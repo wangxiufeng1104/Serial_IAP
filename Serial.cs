@@ -481,14 +481,14 @@ namespace Serial_IAP
 
                         readstring = readstring.Replace("\n", "");
                         //Console.WriteLine($"readstring = {readstring}");
-                        if (readstring.Contains("Failed"))
+                        if (readstring.Contains("F"))
                         {
                             time = 0;
                             timer1.Stop();
                             ProgramErrorNum++;
                             fileFailed.Add(fi.Name);
                         }
-                        else if (readstring.Contains("SUCCESS"))
+                        else if (readstring.Contains("S"))
                         {
                             time = 0;
                             timer1.Stop();
