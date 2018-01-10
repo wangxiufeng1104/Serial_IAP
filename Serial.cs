@@ -313,7 +313,7 @@ namespace Serial_IAP
                 {
                     restype = LoadFiletype(fi);
                     Byte funm = 0;
-                    datalen = 256;
+                    datalen = 512;
                     UInt32 tlen = (UInt32)fileStream.Length;
                     switch (restype)
                     {
