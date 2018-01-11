@@ -384,7 +384,7 @@ namespace Serial_IAP
                         time = 0;
                         do
                         {
-                            if (time >= 3 * 10)
+                            if (time >= 10 * 10)
                             {
                                 State_Text($"超时0", 3);
                                 time = 0;
@@ -417,7 +417,6 @@ namespace Serial_IAP
                                     //MessageBox.Show("超时2", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                                     State_Text($"超时2", 3);
                                     ProgramErrorNum++;
-                                    //State_Text($"更新失败，失败个数{ProgramErrorNum}", 2);
                                     time = 0;
                                     timer1.Stop();
                                     fileFailed.Add(fi.Name);
@@ -462,7 +461,7 @@ namespace Serial_IAP
                         //Delay(300);
                         do
                         {
-                            if (time >= 10 * 10)
+                            if (time >= 3 * 10)
                             {
                                 State_Text($"超时", 3);
                                 ProgramErrorNum++;
@@ -499,6 +498,18 @@ namespace Serial_IAP
             catch (Exception ex)
             {
                 State_Text($"Error:{ex.Message}", 3);
+                Delay(100);
+                if(serialPort1.IsOpen == false)
+                {
+                    try
+                    {
+                        serialPort1.Open();
+                    }
+                    catch(Exception ex1)
+                    {
+                        State_Text($"Error:{ex1.Message}", 3);
+                    }
+                }
             }
             string filefa = string.Empty;
             if (fileFailed.Count >= 1)//有更新失败的文件
