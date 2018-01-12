@@ -525,7 +525,7 @@ namespace Serial_IAP
             }
             else      //更新成功
             {
-                State_Text($"更新成功", 3);
+                State_Text($"全部下载完成", 3);
             }
             ERRORandOK:
             Delay(300);
@@ -547,7 +547,8 @@ namespace Serial_IAP
             toolStripStatusLabel2.Text = "";
             toolStripStatusLabel3.Text = "";
             timer1.Elapsed += new System.Timers.ElapsedEventHandler(timer1_Tick);//到时间的时候执行事件； 
-            timer1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)； 
+            timer1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
+            com_baud.SelectedIndex = 0;
            // t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件； 
 
         }
@@ -699,6 +700,14 @@ namespace Serial_IAP
                 default:
                     return Restype.NONE; 
                 
+            }
+        }
+
+        private void com_baud_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(com_baud.SelectedText != "")
+            {
+                serialPort1.BaudRate = Convert.ToInt32(com_baud.SelectedText);
             }
         }
     }

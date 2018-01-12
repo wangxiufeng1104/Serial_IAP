@@ -47,6 +47,8 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.com_baud = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -56,6 +58,7 @@
             // 添加下载文件
             // 
             this.添加下载文件.Enabled = false;
+            this.添加下载文件.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.添加下载文件.Location = new System.Drawing.Point(14, 18);
             this.添加下载文件.Name = "添加下载文件";
             this.添加下载文件.Size = new System.Drawing.Size(93, 23);
@@ -73,16 +76,18 @@
             // 
             // Com_PartName
             // 
+            this.Com_PartName.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Com_PartName.FormattingEnabled = true;
             this.Com_PartName.Location = new System.Drawing.Point(118, 20);
             this.Com_PartName.Name = "Com_PartName";
-            this.Com_PartName.Size = new System.Drawing.Size(98, 20);
+            this.Com_PartName.Size = new System.Drawing.Size(98, 25);
             this.Com_PartName.TabIndex = 2;
             this.Com_PartName.SelectedIndexChanged += new System.EventHandler(this.Com_PartName_SelectedIndexChanged);
             this.Com_PartName.Click += new System.EventHandler(this.Com_PartName_Click);
             // 
             // 打开串口
             // 
+            this.打开串口.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.打开串口.Location = new System.Drawing.Point(14, 19);
             this.打开串口.Name = "打开串口";
             this.打开串口.Size = new System.Drawing.Size(93, 23);
@@ -106,6 +111,7 @@
             // 下载
             // 
             this.下载.Enabled = false;
+            this.下载.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.下载.Location = new System.Drawing.Point(14, 20);
             this.下载.Name = "下载";
             this.下载.Size = new System.Drawing.Size(93, 23);
@@ -116,8 +122,11 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.com_baud);
             this.groupBox1.Controls.Add(this.Com_PartName);
             this.groupBox1.Controls.Add(this.打开串口);
+            this.groupBox1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.groupBox1.Location = new System.Drawing.Point(19, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(463, 54);
@@ -131,6 +140,7 @@
             this.groupBox2.Controls.Add(this.ClearFile);
             this.groupBox2.Controls.Add(this.List_LoadFile);
             this.groupBox2.Controls.Add(this.添加下载文件);
+            this.groupBox2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.groupBox2.Location = new System.Drawing.Point(19, 89);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(463, 118);
@@ -141,6 +151,7 @@
             // DelSelect
             // 
             this.DelSelect.Enabled = false;
+            this.DelSelect.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.DelSelect.Location = new System.Drawing.Point(14, 50);
             this.DelSelect.Name = "DelSelect";
             this.DelSelect.Size = new System.Drawing.Size(93, 23);
@@ -152,6 +163,7 @@
             // ClearFile
             // 
             this.ClearFile.Enabled = false;
+            this.ClearFile.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.ClearFile.Location = new System.Drawing.Point(14, 82);
             this.ClearFile.Name = "ClearFile";
             this.ClearFile.Size = new System.Drawing.Size(93, 23);
@@ -162,18 +174,20 @@
             // 
             // List_LoadFile
             // 
+            this.List_LoadFile.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.List_LoadFile.FormattingEnabled = true;
-            this.List_LoadFile.ItemHeight = 12;
+            this.List_LoadFile.ItemHeight = 17;
             this.List_LoadFile.Location = new System.Drawing.Point(118, 18);
             this.List_LoadFile.Name = "List_LoadFile";
             this.List_LoadFile.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.List_LoadFile.Size = new System.Drawing.Size(339, 88);
+            this.List_LoadFile.Size = new System.Drawing.Size(339, 72);
             this.List_LoadFile.TabIndex = 1;
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.下载);
             this.groupBox3.Controls.Add(this.progressBar1);
+            this.groupBox3.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.groupBox3.Location = new System.Drawing.Point(19, 226);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(463, 54);
@@ -195,21 +209,57 @@
             // 
             // toolStripStatusLabel1
             // 
+            this.toolStripStatusLabel1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(72, 17);
             this.toolStripStatusLabel1.Text = "LoadStatus";
             // 
             // toolStripStatusLabel2
             // 
+            this.toolStripStatusLabel2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             // 
             // toolStripStatusLabel3
             // 
+            this.toolStripStatusLabel3.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
+            // 
+            // com_baud
+            // 
+            this.com_baud.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.com_baud.FormattingEnabled = true;
+            this.com_baud.Items.AddRange(new object[] {
+            "115200",
+            "128000",
+            "230400",
+            "256000",
+            "460800",
+            "500000",
+            "512000",
+            "600000",
+            "750000",
+            "921600",
+            "",
+            ""});
+            this.com_baud.Location = new System.Drawing.Point(336, 19);
+            this.com_baud.Name = "com_baud";
+            this.com_baud.Size = new System.Drawing.Size(98, 25);
+            this.com_baud.TabIndex = 4;
+            this.com_baud.SelectedIndexChanged += new System.EventHandler(this.com_baud_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(261, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(51, 20);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "波特率";
             // 
             // Serial
             // 
@@ -229,6 +279,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Serial_FormClosing);
             this.Load += new System.EventHandler(this.Serial_Load);
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
@@ -257,6 +308,8 @@
         private System.Windows.Forms.ListBox List_LoadFile;
         private System.Windows.Forms.Button DelSelect;
         private System.Windows.Forms.Button ClearFile;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox com_baud;
     }
 }
 
