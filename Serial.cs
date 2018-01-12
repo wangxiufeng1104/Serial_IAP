@@ -382,6 +382,7 @@ namespace Serial_IAP
                         }
                         timer1.Start();
                         time = 0;
+                        Delay(30);//延时300ms
                         do
                         {
                             if (time >= 10 * 10)
