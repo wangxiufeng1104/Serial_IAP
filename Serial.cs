@@ -411,6 +411,7 @@ namespace Serial_IAP
                             Console.WriteLine(fileStream.Length);
                             timer1.Start();
                             time = 0;
+                            State_Text($"等待擦除", 3);
                             do
                             {
                                 if (time >= 3 * 10)
@@ -425,6 +426,7 @@ namespace Serial_IAP
                                 }
                                 readstring = serialPort1.ReadExisting();
                             } while (readstring == "");
+                            State_Text($"", 3);
                             Console.WriteLine("收到的数据包 = {0}", readstring);
                             if (readstring.Contains("W"))
                             {
@@ -705,9 +707,12 @@ namespace Serial_IAP
 
         private void com_baud_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(com_baud.SelectedText != "")
+            
+            String Sbaud = com_baud.Text;
+            Console.WriteLine($"Sbaud = {Sbaud}");
+            if (Sbaud != "")
             {
-                serialPort1.BaudRate = Convert.ToInt32(com_baud.SelectedText);
+                serialPort1.BaudRate = Convert.ToInt32(Sbaud);
             }
         }
     }
