@@ -385,6 +385,7 @@ namespace Serial_IAP
                         Delay(30);//延时300ms
                         do
                         {
+                            State_Text($"等待擦除", 3);
                             if (time >= 10 * 10)
                             {
                                 State_Text($"超时0", 3);
@@ -394,6 +395,7 @@ namespace Serial_IAP
                             }
                             readstring = serialPort1.ReadExisting();
                         } while (!readstring.Contains("TU"));   //TDO UART
+                        State_Text($"", 3);
                         UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
 
                         HeadInf[0] = 0x7f;
@@ -411,13 +413,12 @@ namespace Serial_IAP
                             Console.WriteLine(fileStream.Length);
                             timer1.Start();
                             time = 0;
-                            State_Text($"等待擦除", 3);
+                            
                             do
                             {
                                 if (time >= 3 * 10)
                                 {
-                                    //MessageBox.Show("超时2", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
-                                    State_Text($"超时2", 3);
+                                    State_Text($"连接超时", 3);
                                     ProgramErrorNum++;
                                     time = 0;
                                     timer1.Stop();
@@ -426,7 +427,7 @@ namespace Serial_IAP
                                 }
                                 readstring = serialPort1.ReadExisting();
                             } while (readstring == "");
-                            State_Text($"", 3);
+                            
                             Console.WriteLine("收到的数据包 = {0}", readstring);
                             if (readstring.Contains("W"))
                             {
@@ -459,7 +460,6 @@ namespace Serial_IAP
                                 ProgramErrorNum++;
                             }
                             time = 0;
-
                         }
                         //Delay(300);
                         do
@@ -474,12 +474,10 @@ namespace Serial_IAP
                                 goto ERRORandOK;
                             }
                             readstring = serialPort1.ReadExisting();
-                            //Console.WriteLine("收到的数据包 = {0}", readstring);
 
                         } while (readstring == "");
 
                         readstring = readstring.Replace("\n", "");
-                        //Console.WriteLine($"readstring = {readstring}");
                         if (readstring.Contains("F"))
                         {
                             time = 0;
