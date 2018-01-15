@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Datahandle.cs" />
     <Compile Include="Serial.cs">
       <SubType>Form</SubType>
     </Compile>

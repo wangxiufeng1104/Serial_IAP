@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.IO;
@@ -31,22 +25,29 @@ namespace Serial_IAP
         ico = 0x50,
         bin
     }
-
-
-
     public partial  class Serial : Form
     {
         private Thread C_Monitor_Thread;   //串口监听线程
-        private bool IsLoading = false;
-        static int ProgramOKNum = 0;     //成功下载程序的个数
-        static int ProgramErrorNum = 0;  //失败下载程序的个数
-        static List<FileInfo> filelist = new List<FileInfo> { };
-        List<string> fileFailed = new List<string> { };
-        string loadingfile = string.Empty;
-        Restype restype = Restype.NONE;
+        public bool IsLoading = false;
+        public Thread ThreadDataHandle;
+        Datahandle datahandle;
+        public static List<FileInfo> filelist = new List<FileInfo> { };
+        
+        
+        public Restype restype = Restype.NONE;
+        public static Serial SerialSingle = null;
+        public static Serial GetSingle()
+        {
+            if (SerialSingle == null)
+            {
+                SerialSingle = new Serial();
 
+            }
+            return SerialSingle;
+        }
         public Serial()
         {
+            SerialSingle = this;
             InitializeComponent();
         }
 
@@ -110,28 +111,6 @@ namespace Serial_IAP
             }
         }
         delegate void MyInvoke(bool IsAuto); //下载进度
-
-        private void Check_Common()
-        {
-            string BeginString = "";
-            Console.WriteLine("Check_Common\n");
-            while(true)
-            {
-                if(IsLoading == false)
-                {
-                    Delay(300);
-                    BeginString = serialPort1.ReadExisting();
-                    Console.WriteLine($"BeginString = {BeginString}");
-                    if (BeginString.Contains("HEY"))
-                    {
-                        IsLoading = true;
-                        MyInvoke mi = new MyInvoke(Programing_Thread);
-                        this.BeginInvoke(mi,true);
-                        while (IsLoading == true) ;
-                    }
-                }
-            }
-        }
         private void Com_PartName_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(serialPort1.IsOpen == false && Com_PartName.Items.Count > 0)
@@ -183,95 +162,29 @@ namespace Serial_IAP
             }
         }
         //crc32校验
-        public UInt32 CRC32(UInt32[] InputData, int len)
-        {
-            UInt32 dwPolynomial = 0x04c11db7;
-
-            UInt32 xbit;
-            UInt32 data;
-            UInt32 crc_cnt = 0xFFFFFFFF; // init
-            for (int i = 0; i < len; i++)
-            {
-                // xbit = 1 << 31;
-                xbit = 0x80000000;
-                data = InputData[i];
-                for (int bits = 0; bits < 32; bits++)
-                {
-                    if ((crc_cnt & 0x80000000) > 0)
-                    {
-                        crc_cnt <<= 1;
-                        crc_cnt ^= dwPolynomial;
-                    }
-                    else
-                        crc_cnt <<= 1;
-                    if ((data & xbit) > 0)
-                        crc_cnt ^= dwPolynomial;
-                    xbit >>= 1;
-                }
-            }
-            return crc_cnt;
-        }
-        //byte[]数组转化为UInt32[]数组
-        private UInt32[] ByteArrayToUInt32Array(byte[] bytes)
-        {
-            byte[] newbytes = new byte[bytes.Length + (4 - bytes.Length % 4)];
-            for (int i = 0; i < bytes.Length; i++)
-                newbytes[i] = bytes[i];
-            UInt32[] u32 = new UInt32[newbytes.Length / 4];
-            for (int i = 0; i < newbytes.Length / 4; i++)
-                u32[i] = System.BitConverter.ToUInt32(newbytes, i * 4);
-            return u32;
-        }
-        private UInt32[] ByteArrayToUInt32Array1(byte[] bytes)
-        {
-            byte[] newbytes = new byte[bytes.Length + (4 - bytes.Length % 4)];
-            for (int i = 0; i < bytes.Length; i++)
-                newbytes[i] = bytes[i];
-
-            UInt32[] u32 = new UInt32[newbytes.Length / 4];
-            for (int i = 0; i < newbytes.Length / 4; i++)
-            {
-                u32[i] = (UInt32)(newbytes[i * 4] << 24)| (UInt32)( newbytes[i * 4 + 1] << 16) | (UInt32)(newbytes[i * 4 + 2] << 8) | (UInt32)(newbytes[i * 4 + 3]);
-            }
-            return u32;
-        }
-        public static bool Delay(int delayTime)
-        {
-            DateTime now = DateTime.Now;
-            int s;
-            do
-            {
-                TimeSpan spand = DateTime.Now - now;
-                s = spand.Milliseconds;
-                Application.DoEvents();
-            }
-            while (s < delayTime);
-            return true;
-        }
         private void 下载_Click(object sender, EventArgs e)
         {
             IsLoading = true;
             //C_Monitor_Thread.Suspend();
-            Programing_Thread(false);
+            datahandle = new Datahandle(false);
+            ThreadDataHandle = new Thread(new ThreadStart(datahandle.DataHandle_Thread));
+            ThreadDataHandle.Start();
             //C_Monitor_Thread.Resume();
             IsLoading = false;
-
         }
-
-        private void Download_progress(int count)
+        public void Download_progress(int count)
         {
             //progressBar1.Value = progressBar1.Value + count;
             progressBar1.Value = count;
             progressBar1.Refresh();
-            
             Console.WriteLine($"progressBar1.Value = {progressBar1.Value}");
         }
-        private void progressBar1_Max_Set(int max)
+        public void progressBar1_Max_Set(int max)
         {
             progressBar1.Maximum = max;
             Console.WriteLine($"progressBar1.Maximum = {progressBar1.Maximum}");
         }
-        private void State_Text(string str,int i)
+        public void State_Text(string str,int i)
         {
             if(i == 1)
             {
@@ -286,271 +199,13 @@ namespace Serial_IAP
                 toolStripStatusLabel3.Text = str;
             }
         }
-        public void Programing_Thread(bool IsAuto)
-        {
-            FileStream fileStream = null;
-            string readstring = "";
-            toolStripStatusLabel3.Text = "";
-            int datalen = 0;
-            try
-            {
-                foreach (FileInfo fi in filelist)
-                {
-                    loadingfile = fi.FullName;
-                    toolStripStatusLabel2.Text = $"当前下载文件{fi.Name}";
-                    fileStream = new FileStream(loadingfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    progressBar1_Max_Set((int)fileStream.Length);
-                    byte[] buffur = new byte[fileStream.Length];
-                    fileStream.Read(buffur, 0, buffur.Length);
-                    // 设置当前流的位置为流的开始 
-                    fileStream.Seek(0, SeekOrigin.Begin);
-                    byte[] HeadInf = new byte[5];
-                    //第一步先判断文件类型
-                    string Exten = fi.Extension.ToLower();
-                    if (Exten != ".bin")
-                    {
-                        restype = LoadFiletype(fi);
-                        Byte funm = 0;
-                        datalen = 512;
-                        UInt32 tlen = (UInt32)fileStream.Length;
-                        switch (restype)
-                        {
-                            case Restype.NONE:
-                                continue;
-                            case Restype.ico:
-                                funm = 0x50;
-                                break;
-                            case Restype.ASCII16:
-                                funm = 0x10;
-                                break;
-                            case Restype.ASCII24:
-                                funm = 0x11;
-                                break;
-                            case Restype.ASCII32:
-                                funm = 0x12;
-                                break;
-                            case Restype.ASCII48:
-                                funm = 0x13;
-                                break;
-                            case Restype.GB2312_16:
-                                funm = 0x20;
-                                break;
-                            case Restype.GB2312_24:
-                                funm = 0x21;
-                                break;
-                            case Restype.GB2312_32:
-                                funm = 0x22;
-                                break;
-                            case Restype.GB2312_48:
-                                funm = 0x23;
-                                break;
-                            case Restype.KO_16:
-                                funm = 0x30;
-                                break;
-                            case Restype.KO_24:
-                                funm = 0x31;
-                                break;
-                            case Restype.KO_32:
-                                funm = 0x32;
-                                break;
-                            case Restype.KO_48:
-                                funm = 0x33;
-                                break;
-                            default:
-                                break;
-                        }
-                        string incstr = string.Format($"DOW({funm},{tlen})\r\n");
-                        serialPort1.Write(incstr);
-                    }
-                    else
-                    {
-                        datalen = 2048;
-                        if (IsAuto == false)
-                        {
-                            byte[] startInf = new byte[10];
-                            startInf[0] = 0x52;
-                            startInf[1] = 0x45;
-                            startInf[2] = 0x49;
-                            startInf[3] = 0x41;
-                            startInf[4] = 0x50;
-                            startInf[5] = 0x28;
-                            startInf[6] = 0x29;
-                            startInf[7] = 0x3b;
-                            startInf[8] = 0x0d;
-                            startInf[9] = 0x0a;
-                            serialPort1.Write(startInf, 0, 10);
-                        }
-                        timer1.Start();
-                        time = 0;
-                        Delay(30);//延时300ms
-                        do
-                        {
-                            State_Text($"等待擦除", 3);
-                            if (time >= 10 * 10)
-                            {
-                                State_Text($"超时0", 3);
-                                time = 0;
-                                timer1.Stop();
-                                goto ERRORandOK;
-                            }
-                            readstring = serialPort1.ReadExisting();
-                        } while (!readstring.Contains("TU"));   //TDO UART
-                        State_Text($"", 3);
-                        UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
-
-                        HeadInf[0] = 0x7f;
-                        HeadInf[1] = (byte)(fileStream.Length >> 8);
-                        HeadInf[2] = (byte)fileStream.Length;
-                        HeadInf[3] = (byte)(CRCResult >> 8);
-                        HeadInf[4] = (byte)(byte)CRCResult;
-                        serialPort1.Write(HeadInf, 0, 5);
-                    }
-                    if (loadingfile != "")
-                    {
-                        for (int i = 0; i < fileStream.Length; i += datalen)
-                        {
-                            Console.WriteLine(i);
-                            Console.WriteLine(fileStream.Length);
-                            timer1.Start();
-                            time = 0;
-                            
-                            do
-                            {
-                                if (time >= 3 * 10)
-                                {
-                                    State_Text($"连接超时", 3);
-                                    ProgramErrorNum++;
-                                    time = 0;
-                                    timer1.Stop();
-                                    fileFailed.Add(fi.Name);
-                                    goto ERRORandOK;
-                                }
-                                readstring = serialPort1.ReadExisting();
-                            } while (readstring == "");
-                            
-                            Console.WriteLine("收到的数据包 = {0}", readstring);
-                            if (readstring.Contains("W"))
-                            {
-                                time = 0;
-                            }
-                            else
-                            {
-                                time = 0;
-                                timer1.Stop();
-                                fileFailed.Add(fi.Name);
-                                State_Text($"数据错误！错误的数据%{readstring}%", 3);
-                                ProgramErrorNum++;
-                                goto ERRORandOK;
-                            }
-                            int count = (int)fileStream.Length - i;
-                            if (count > datalen)
-                            {
-                                count = datalen;
-                            }
-                            try
-                            {
-                                serialPort1.Write(buffur, i, count);
-                                Download_progress(count + i);
-
-                            }
-                            catch (Exception ex)
-                            {
-                                State_Text($"Error:{ex.Message}", 3);
-                                fileFailed.Add(fi.Name);
-                                ProgramErrorNum++;
-                            }
-                            time = 0;
-                        }
-                        //Delay(300);
-                        do
-                        {
-                            if (time >= 3 * 10)
-                            {
-                                State_Text($"超时", 3);
-                                ProgramErrorNum++;
-                                time = 0;
-                                timer1.Stop();
-                                fileFailed.Add(fi.Name);
-                                goto ERRORandOK;
-                            }
-                            readstring = serialPort1.ReadExisting();
-
-                        } while (readstring == "");
-
-                        readstring = readstring.Replace("\n", "");
-                        if (readstring.Contains("F"))
-                        {
-                            time = 0;
-                            timer1.Stop();
-                            ProgramErrorNum++;
-                            fileFailed.Add(fi.Name);
-                        }
-                        else if (readstring.Contains("S"))
-                        {
-                            time = 0;
-                            timer1.Stop();
-                            ProgramOKNum++;
-                            State_Text($"{ProgramOKNum}下载成功", 1);
-                            progressBar1.Value = 0;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                State_Text($"Error:{ex.Message}", 3);
-                Delay(100);
-                if(serialPort1.IsOpen == false)
-                {
-                    try
-                    {
-                        serialPort1.Open();
-                    }
-                    catch(Exception ex1)
-                    {
-                        State_Text($"Error:{ex1.Message}", 3);
-                    }
-                }
-            }
-            string filefa = string.Empty;
-            if (fileFailed.Count >= 1)//有更新失败的文件
-            {
-                foreach(string s in fileFailed)
-                {
-                    filefa += s;
-                    filefa += "\n";
-                }
-                MessageBox.Show(filefa,"更新失败列表",MessageBoxButtons.OKCancel,MessageBoxIcon.Information);
-                fileFailed.Clear();
-            }
-            else      //更新成功
-            {
-                State_Text($"全部下载完成", 3);
-            }
-            ERRORandOK:
-            Delay(300);
-            
-            readstring = serialPort1.ReadExisting();
-            IsLoading = false;
-            fileFailed.Clear();
-            return;
-        }
-        int time = 0;
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            time++;
-        }
-        System.Timers.Timer timer1 = new System.Timers.Timer(100);//实例化Timer类，设置间隔时间为1000毫秒；
-        private void Serial_Load(object sender, EventArgs e)
+        public void Serial_Load(object sender, EventArgs e)
         {
             toolStripStatusLabel1.Text = "";
             toolStripStatusLabel2.Text = "";
             toolStripStatusLabel3.Text = "";
-            timer1.Elapsed += new System.Timers.ElapsedEventHandler(timer1_Tick);//到时间的时候执行事件； 
-            timer1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
             com_baud.SelectedIndex = 0;
-           // t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件； 
-
+            Control.CheckForIllegalCrossThreadCalls = false;    //取消线线程安全保护模式！
         }
         private void Serial_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -558,6 +213,11 @@ namespace Serial_IAP
             {
                 C_Monitor_Thread.Abort();
             }
+            if(ThreadDataHandle != null)
+            {
+                ThreadDataHandle.Abort();//下载线程关闭
+            }
+            serialPort1.Close();//关闭串口，避免串口死掉
             Environment.Exit(0);
         }
         /****************************
@@ -617,7 +277,7 @@ namespace Serial_IAP
             filelist.RemoveAt(BinIndex);
             filelist.Add(temp);
         }
-        Restype LoadFiletype(FileInfo fileinfo)
+        public Restype LoadFiletype(FileInfo fileinfo)
         {
             string exten = fileinfo.Extension.ToLower();
             switch(exten)
@@ -699,13 +359,10 @@ namespace Serial_IAP
                     return Restype.bin;
                 default:
                     return Restype.NONE; 
-                
             }
         }
-
         private void com_baud_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
             String Sbaud = com_baud.Text;
             Console.WriteLine($"Sbaud = {Sbaud}");
             if (Sbaud != "")

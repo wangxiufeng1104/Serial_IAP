@@ -38,6 +38,8 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.下载 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.com_baud = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.DelSelect = new System.Windows.Forms.Button();
             this.ClearFile = new System.Windows.Forms.Button();
@@ -47,8 +49,6 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.com_baud = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -133,6 +133,39 @@
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "第一步：打开正确的串口";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(261, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(51, 20);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "波特率";
+            // 
+            // com_baud
+            // 
+            this.com_baud.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.com_baud.FormattingEnabled = true;
+            this.com_baud.Items.AddRange(new object[] {
+            "115200",
+            "128000",
+            "230400",
+            "256000",
+            "460800",
+            "500000",
+            "512000",
+            "600000",
+            "750000",
+            "921600",
+            "",
+            ""});
+            this.com_baud.Location = new System.Drawing.Point(336, 19);
+            this.com_baud.Name = "com_baud";
+            this.com_baud.Size = new System.Drawing.Size(98, 25);
+            this.com_baud.TabIndex = 4;
+            this.com_baud.SelectedIndexChanged += new System.EventHandler(this.com_baud_SelectedIndexChanged);
             // 
             // groupBox2
             // 
@@ -228,39 +261,6 @@
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
             // 
-            // com_baud
-            // 
-            this.com_baud.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.com_baud.FormattingEnabled = true;
-            this.com_baud.Items.AddRange(new object[] {
-            "115200",
-            "128000",
-            "230400",
-            "256000",
-            "460800",
-            "500000",
-            "512000",
-            "600000",
-            "750000",
-            "921600",
-            "",
-            ""});
-            this.com_baud.Location = new System.Drawing.Point(336, 19);
-            this.com_baud.Name = "com_baud";
-            this.com_baud.Size = new System.Drawing.Size(98, 25);
-            this.com_baud.TabIndex = 4;
-            this.com_baud.SelectedIndexChanged += new System.EventHandler(this.com_baud_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(261, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(51, 20);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "波特率";
-            // 
             // Serial
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -292,7 +292,6 @@
         #endregion
 
         private System.Windows.Forms.Button 添加下载文件;
-        private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.ComboBox Com_PartName;
         private System.Windows.Forms.Button 打开串口;
         private System.Windows.Forms.Button 下载;
@@ -300,16 +299,17 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
         public System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.ListBox List_LoadFile;
         private System.Windows.Forms.Button DelSelect;
         private System.Windows.Forms.Button ClearFile;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox com_baud;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
+        public System.Windows.Forms.ListBox List_LoadFile;
+        public System.IO.Ports.SerialPort serialPort1;
+        public System.Windows.Forms.StatusStrip statusStrip1;
     }
 }
 
