@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Serial_IAP
@@ -21,7 +18,7 @@ namespace Serial_IAP
             IsAuto = Isauto;
             timer1.Elapsed += new System.Timers.ElapsedEventHandler(timer1_Tick);//到时间的时候执行事件； 
             timer1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
-             Control.CheckForIllegalCrossThreadCalls = false;    //取消线线程安全保护模式！
+            Control.CheckForIllegalCrossThreadCalls = false;    //取消线线程安全保护模式！
         }
         int time = 0;
         public void timer1_Tick(object sender, EventArgs e)
@@ -91,7 +88,6 @@ namespace Serial_IAP
             Console.WriteLine($"s1.filelist.count = {Serial.filelist.Count}");
             try
             {
-               
                 foreach (FileInfo fi in Serial.filelist)
                 {
                     loadingfile = fi.FullName;
@@ -158,8 +154,7 @@ namespace Serial_IAP
                                 break;
                         }
                         string incstr = string.Format($"DOW({funm},{tlen})\r\n");
-                        s1.State_Text($"等待擦除芯片flash", 3);
-                        Console.WriteLine($"等待擦除芯片flash");
+                        s1.State_Text($"等待擦除芯片flash", 2);
                         s1.serialPort1.Write(incstr);
                     }
                     else
@@ -185,7 +180,7 @@ namespace Serial_IAP
                         Delay(30);//延时300ms
                         do
                         {
-                            
+
                             if (time >= 10 * 10)
                             {
                                 s1.State_Text($"超时0", 3);
@@ -195,7 +190,7 @@ namespace Serial_IAP
                             }
                             readstring = s1.serialPort1.ReadExisting();
                         } while (!readstring.Contains("TU"));   //TDO UART
-                        
+
                         UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
 
                         HeadInf[0] = 0x7f;
@@ -205,18 +200,18 @@ namespace Serial_IAP
                         HeadInf[4] = (byte)(byte)CRCResult;
                         s1.serialPort1.Write(HeadInf, 0, 5);
                     }
-                    
+
                     if (loadingfile != "")
                     {
                         for (int i = 0; i < fileStream.Length; i += datalen)
                         {
-                            Console.WriteLine(i);
-                            Console.WriteLine(fileStream.Length);
+                            if (i == datalen)
+                                s1.State_Text($"当前下载文件{fi.Name}", 2);
                             timer1.Start();
                             time = 0;
                             do
                             {
-                                if (time >= 3 * 10)
+                                if (time >= 13 * 10)
                                 {
                                     s1.State_Text($"连接超时", 3);
                                     ProgramErrorNum++;
@@ -227,7 +222,6 @@ namespace Serial_IAP
                                 }
                                 readstring = s1.serialPort1.ReadExisting();
                             } while (readstring == "");
-                            Console.WriteLine("收到的数据包 = {0}", readstring);
                             s1.State_Text($"", 3);
                             if (readstring.Contains("W"))
                             {
@@ -261,7 +255,6 @@ namespace Serial_IAP
                             }
                             time = 0;
                         }
-                        //Delay(300);
                         do
                         {
                             if (time >= 3 * 10)
