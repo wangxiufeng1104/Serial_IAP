@@ -4,12 +4,14 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.IO;
 using System.Threading;
+using Microsoft.Win32;
 
 namespace Serial_IAP
 {
     public enum Restype
     {
         NONE = 0x00,
+        dzk,
         ASCII16 = 0x10,
         ASCII24,
         ASCII32,
@@ -58,12 +60,22 @@ namespace Serial_IAP
                 serialPort1.Close();
                 打开串口.Text = "打开串口";
             }
+
+            //RegistryKey keyCom = Registry.LocalMachine.OpenSubKey("Hardware\\DeviceMap\\SerialComm");
+            //if(keyCom != null)
+            //{
+            //    string[] sSubKeys = keyCom.GetValueNames();
+            //    Com_PartName.Items.Clear();
+            //    foreach (string sName in sSubKeys)
+            //    {
+            //        string sValue = (string)keyCom.GetValue(sName);
+            //        Com_PartName.Items.Add(sValue);
+            //    }
+            //}
             string[] str = SerialPort.GetPortNames();
             if (str == null)
             {
-                //MessageBox.Show("No Serial", "Error");
                 toolStripStatusLabel3.Text = "Error: No Serial";
-
                 return;
             }
             Com_PartName.Items.Clear();
@@ -121,6 +133,7 @@ namespace Serial_IAP
         }
         private void 选择下载文件_Click(object sender, EventArgs e)
         {
+            int fileID = -1;
             if(openFileDialog1.ShowDialog() == DialogResult.OK)
             {   
                 foreach(string fi in openFileDialog1.FileNames)
@@ -128,7 +141,7 @@ namespace Serial_IAP
                     if(false == List_LoadFile.Items.Contains(fi))
                     {
                         FileInfo fileInfo = new FileInfo(fi);
-                        restype = LoadFiletype(fileInfo);
+                        restype = LoadFiletype(fileInfo,ref fileID);
                         if (restype == Restype.NONE)
                         {
                             MessageBox.Show($"不识别文件{fileInfo}", "警告", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
@@ -277,89 +290,75 @@ namespace Serial_IAP
             filelist.RemoveAt(BinIndex);
             filelist.Add(temp);
         }
-        public Restype LoadFiletype(FileInfo fileinfo)
+        public Restype LoadFiletype(FileInfo fileinfo,ref int fileID)
         {
             string exten = fileinfo.Extension.ToLower();
-            switch(exten)
+            Restype res = Restype.NONE;
+            fileID = -1;
+            switch (exten)
             {
                 case ".ico":
-                    return Restype.ico;
+                    
                 case ".dzk":
-                    if(fileinfo.Name.Contains("ASCII"))
+                    if(exten == ".ico")
                     {
-                        if(fileinfo.Name.Contains("16"))
+                        res = Restype.ico;
+                    }
+                    else
+                    {
+                        res = Restype.dzk;
+                    }
+                    char[] namebyte = fileinfo.Name.ToCharArray();
+                    if(namebyte.Length >= 5)
+                    {
+                        if(namebyte[0] < '0' || namebyte[0] > '9')
                         {
-                            return Restype.ASCII16;
+                            res = Restype.NONE;
+                            break;
                         }
-                        else if (fileinfo.Name.Contains("24"))
+                        byte num = 0;
+                        string filenum = string.Empty;
+                        do
                         {
-                            return Restype.ASCII24;
-                        }
-                        else if (fileinfo.Name.Contains("32"))
+                            if (namebyte[num] > '0' && namebyte[num] < '9')
+                            {
+                                if (num >= 4)
+                                {
+                                    res = Restype.NONE;
+                                    break;
+                                }
+                                filenum += namebyte[num];
+                                num++;
+                            }
+                            else
+                            {
+                                if(num <= 3)
+                                {
+                                    //res = Restype.NONE;
+                                    break;
+                                }
+                            }
+                        } while (num < (namebyte.Length - 4));
+                        if(filenum != string.Empty && num < 4)
                         {
-                            return Restype.ASCII32;
-                        }
-                        else if (fileinfo.Name.Contains("48"))
-                        {
-                            return Restype.ASCII48;
-                        }
-                        else
-                        {
-                            return Restype.NONE;
+                            fileID = Convert.ToInt32(filenum);
+                            if(fileID < 0 || fileID > 255)
+                            {
+                                res = Restype.NONE;
+                            }
+                            break;
                         }
                     }
-                    else if(fileinfo.Name.Contains("GB2312"))
-                    {
-                        if (fileinfo.Name.Contains("16"))
-                        {
-                            return Restype.GB2312_16;
-                        }
-                        else if (fileinfo.Name.Contains("24"))
-                        {
-                            return Restype.GB2312_24;
-                        }
-                        else if (fileinfo.Name.Contains("32"))
-                        {
-                            return Restype.GB2312_32;
-                        }
-                        else if (fileinfo.Name.Contains("48"))
-                        {
-                            return Restype.GB2312_48;
-                        }
-                        else
-                        {
-                            return Restype.NONE;
-                        }
-                    }
-                    else if(fileinfo.Name.Contains("KO"))
-                    {
-                        if (fileinfo.Name.Contains("16"))
-                        {
-                            return Restype.KO_16;
-                        }
-                        else if (fileinfo.Name.Contains("24"))
-                        {
-                            return Restype.KO_24;
-                        }
-                        else if (fileinfo.Name.Contains("32"))
-                        {
-                            return Restype.KO_32;
-                        }
-                        else if (fileinfo.Name.Contains("48"))
-                        {
-                            return Restype.KO_48;
-                        }
-                        else
-                        {
-                            return Restype.NONE;
-                        }
-                    }
-                    return Restype.NONE;
+                    res = Restype.NONE;
+                    break;
                 case ".bin":
-                    return Restype.bin;
+                    res = Restype.bin;
+                    break;
                 default:
-                    return Restype.NONE; 
+                    res = Restype.NONE;
+                    break;
             }
+            return res;
         }
         private void com_baud_SelectedIndexChanged(object sender, EventArgs e)
         {

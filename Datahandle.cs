@@ -84,7 +84,6 @@ namespace Serial_IAP
             Serial s1 = Serial.GetSingle();
             s1.State_Text("", 3);
             int datalen = 0;
-            Console.WriteLine("DataHandle_Thread");
             Console.WriteLine($"s1.filelist.count = {Serial.filelist.Count}");
             try
             {
@@ -103,77 +102,40 @@ namespace Serial_IAP
                     string Exten = fi.Extension.ToLower();
                     if (Exten != ".bin")
                     {
-                        s1.restype = s1.LoadFiletype(fi);
-                        Byte funm = 0;
+                        int fileID = -1;
+                        s1.restype = s1.LoadFiletype(fi,ref fileID);
                         datalen = 512;
                         UInt32 tlen = (UInt32)fileStream.Length;
-                        switch (s1.restype)
-                        {
-                            case Restype.NONE:
-                                continue;
-                            case Restype.ico:
-                                funm = 0x50;
-                                break;
-                            case Restype.ASCII16:
-                                funm = 0x10;
-                                break;
-                            case Restype.ASCII24:
-                                funm = 0x11;
-                                break;
-                            case Restype.ASCII32:
-                                funm = 0x12;
-                                break;
-                            case Restype.ASCII48:
-                                funm = 0x13;
-                                break;
-                            case Restype.GB2312_16:
-                                funm = 0x20;
-                                break;
-                            case Restype.GB2312_24:
-                                funm = 0x21;
-                                break;
-                            case Restype.GB2312_32:
-                                funm = 0x22;
-                                break;
-                            case Restype.GB2312_48:
-                                funm = 0x23;
-                                break;
-                            case Restype.KO_16:
-                                funm = 0x30;
-                                break;
-                            case Restype.KO_24:
-                                funm = 0x31;
-                                break;
-                            case Restype.KO_32:
-                                funm = 0x32;
-                                break;
-                            case Restype.KO_48:
-                                funm = 0x33;
-                                break;
-                            default:
-                                break;
-                        }
-                        string incstr = string.Format($"DOW({funm},{tlen})\r\n");
                         s1.State_Text($"等待擦除芯片flash", 2);
-                        s1.serialPort1.Write(incstr);
+                        byte[] sendinfo = new byte[11];
+                        sendinfo[0] = 0xaa;
+                        sendinfo[1] = 0xb0;
+                        sendinfo[2] = (byte)fileID;
+                        sendinfo[3] = (byte)(tlen >> 24);
+                        sendinfo[4] = (byte)(tlen >> 16);
+                        sendinfo[5] = (byte)(tlen >> 8);
+                        sendinfo[6] = (byte)(tlen);
+                        sendinfo[7] = 0xcc;
+                        sendinfo[8] = 0x33;
+                        sendinfo[9] = 0xc3;
+                        sendinfo[10] = 0x3c;
+                        s1.serialPort1.Write(sendinfo, 0, 11);
                     }
                     else
                     {
                         datalen = 2048;
                         if (IsAuto == false)
                         {
-                            byte[] startInf = new byte[10];
-                            startInf[0] = 0x52;
-                            startInf[1] = 0x45;
-                            startInf[2] = 0x49;
-                            startInf[3] = 0x41;
-                            startInf[4] = 0x50;
-                            startInf[5] = 0x28;
-                            startInf[6] = 0x29;
-                            startInf[7] = 0x3b;
-                            startInf[8] = 0x0d;
-                            startInf[9] = 0x0a;
-                            s1.serialPort1.Write(startInf, 0, 10);
+                            byte[] startInf = new byte[8];
+                            startInf[0] = 0xAA;
+                            startInf[1] = 0x8E;
+                            startInf[2] = 0x00;
+                            startInf[3] = 0x8E;
+                            startInf[4] = 0xCC;
+                            startInf[5] = 0x33;
+                            startInf[6] = 0xC3;
+                            startInf[7] = 0x3C;
+                            s1.serialPort1.Write(startInf, 0, 8);
                         }
                         timer1.Start();
                         time = 0;
@@ -181,7 +143,7 @@ namespace Serial_IAP
                         do
                         {
 
-                            if (time >= 10 * 10)
+                            if (time >= 13 * 10)
                             {
                                 s1.State_Text($"超时0", 3);
                                 time = 0;

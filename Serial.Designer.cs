@@ -80,7 +80,8 @@
             this.Com_PartName.FormattingEnabled = true;
             this.Com_PartName.Location = new System.Drawing.Point(118, 20);
             this.Com_PartName.Name = "Com_PartName";
-            this.Com_PartName.Size = new System.Drawing.Size(98, 25);
+            this.Com_PartName.Size = new System.Drawing.Size(137, 25);
+            this.Com_PartName.Sorted = true;
             this.Com_PartName.TabIndex = 2;
             this.Com_PartName.SelectedIndexChanged += new System.EventHandler(this.Com_PartName_SelectedIndexChanged);
             this.Com_PartName.Click += new System.EventHandler(this.Com_PartName_Click);
@@ -212,6 +213,7 @@
             this.List_LoadFile.ItemHeight = 17;
             this.List_LoadFile.Location = new System.Drawing.Point(118, 18);
             this.List_LoadFile.Name = "List_LoadFile";
+            this.List_LoadFile.ScrollAlwaysVisible = true;
             this.List_LoadFile.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.List_LoadFile.Size = new System.Drawing.Size(339, 72);
             this.List_LoadFile.TabIndex = 1;
