@@ -34,7 +34,6 @@ namespace Serial_IAP
             UInt32 crc_cnt = 0xFFFFFFFF; // init
             for (int i = 0; i < len; i++)
             {
-                // xbit = 1 << 31;
                 xbit = 0x80000000;
                 data = InputData[i];
                 for (int bits = 0; bits < 32; bits++)
@@ -94,10 +93,11 @@ namespace Serial_IAP
                     fileStream = new FileStream(loadingfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     s1.progressBar1_Max_Set((int)fileStream.Length);
                     byte[] buffur = new byte[fileStream.Length];
+                    byte[] buffur1 = new byte[2050];
                     fileStream.Read(buffur, 0, buffur.Length);
                     // 设置当前流的位置为流的开始 
                     fileStream.Seek(0, SeekOrigin.Begin);
-                    byte[] HeadInf = new byte[5];
+                    byte[] HeadInf = new byte[7];
                     //第一步先判断文件类型
                     string Exten = fi.Extension.ToLower();
                     if (Exten != ".bin")
@@ -155,14 +155,15 @@ namespace Serial_IAP
 
                         UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
 
-                        HeadInf[0] = 0x7f;
-                        HeadInf[1] = (byte)(fileStream.Length >> 8);
-                        HeadInf[2] = (byte)fileStream.Length;
-                        HeadInf[3] = (byte)(CRCResult >> 8);
-                        HeadInf[4] = (byte)(byte)CRCResult;
-                        s1.serialPort1.Write(HeadInf, 0, 5);
+                        HeadInf[0] = (byte)'T';
+                        HeadInf[1] = (byte)'D';
+                        HeadInf[2] = (byte)'O';
+                        HeadInf[3] = (byte)(fileStream.Length >> 8);
+                        HeadInf[4] = (byte)fileStream.Length;
+                        HeadInf[5] = (byte)(CRCResult >> 8);
+                        HeadInf[6] = (byte)(byte)CRCResult;
+                        s1.serialPort1.Write(HeadInf, 0, 7);
                     }
-
                     if (loadingfile != "")
                     {
                         for (int i = 0; i < fileStream.Length; i += datalen)
@@ -205,9 +206,17 @@ namespace Serial_IAP
                             }
                             try
                             {
-                                s1.serialPort1.Write(buffur, i, count);
-                                s1.Download_progress(count + i);
+                                UInt32 CRCResult1;
+                                
+                                fileStream.Read(buffur1, i, count);
 
+                                CRCResult1 = CRC32(ByteArrayToUInt32Array1(buffur1), 2048);
+                                byte[] crcarray = new byte[2];
+                                crcarray[0] = (byte)(CRCResult1 >> 8);
+                                crcarray[1] = (byte)(byte)CRCResult1;
+                                s1.serialPort1.Write(buffur, i, count);
+                                s1.serialPort1.Write(crcarray, 0, 2);
+                                s1.Download_progress(count + i);
                             }
                             catch (Exception ex)
                             {
@@ -229,7 +238,6 @@ namespace Serial_IAP
                                 goto ERRORandOK;
                             }
                             readstring = s1.serialPort1.ReadExisting();
-
                         } while (readstring == "");
 
                         readstring = readstring.Replace("\n", "");

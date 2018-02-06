@@ -320,7 +320,7 @@ namespace Serial_IAP
                         string filenum = string.Empty;
                         do
                         {
-                            if (namebyte[num] > '0' && namebyte[num] < '9')
+                            if (namebyte[num] >= '0' && namebyte[num] <= '9')
                             {
                                 if (num >= 4)
                                 {
