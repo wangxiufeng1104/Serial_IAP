@@ -80,6 +80,8 @@ namespace Serial_IAP
         {
             FileStream fileStream = null;
             string readstring = "";
+            int LoadPosition = 0;//记录下载的位置
+            int reloadrecord = 0;//记录重新下载次数
             Serial s1 = Serial.GetSingle();
             s1.State_Text("", 3);
             int datalen = 0;
@@ -93,7 +95,7 @@ namespace Serial_IAP
                     fileStream = new FileStream(loadingfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     s1.progressBar1_Max_Set((int)fileStream.Length);
                     byte[] buffur = new byte[fileStream.Length];
-                    byte[] buffur1 = new byte[2050];
+                    byte[] buffur1 = new byte[2048];
                     fileStream.Read(buffur, 0, buffur.Length);
                     // 设置当前流的位置为流的开始 
                     fileStream.Seek(0, SeekOrigin.Begin);
@@ -168,6 +170,7 @@ namespace Serial_IAP
                     {
                         for (int i = 0; i < fileStream.Length; i += datalen)
                         {
+
                             if (i == datalen)
                                 s1.State_Text($"当前下载文件{fi.Name}", 2);
                             timer1.Start();
@@ -188,7 +191,18 @@ namespace Serial_IAP
                             s1.State_Text($"", 3);
                             if (readstring.Contains("W"))
                             {
+                                reloadrecord = 0;
                                 time = 0;
+                            }
+                            else if(readstring.Contains("C"))
+                            {
+                                reloadrecord++;
+                                if(reloadrecord>=2)
+                                {
+                                    goto ERRORandOK;
+                                }
+                                time = 0;
+                                i = LoadPosition;
                             }
                             else
                             {
@@ -200,23 +214,22 @@ namespace Serial_IAP
                                 goto ERRORandOK;
                             }
                             int count = (int)fileStream.Length - i;
-                            if (count > datalen)
+                            if (count > datalen) 
                             {
                                 count = datalen;
                             }
                             try
                             {
                                 UInt32 CRCResult1;
-                                
-                                fileStream.Read(buffur1, i, count);
-
-                                CRCResult1 = CRC32(ByteArrayToUInt32Array1(buffur1), 2048);
+                                System.Buffer.BlockCopy(buffur,0, buffur1,i,count);
+                                CRCResult1 = CRC32(ByteArrayToUInt32Array1(buffur1), count/4);
                                 byte[] crcarray = new byte[2];
                                 crcarray[0] = (byte)(CRCResult1 >> 8);
                                 crcarray[1] = (byte)(byte)CRCResult1;
                                 s1.serialPort1.Write(buffur, i, count);
                                 s1.serialPort1.Write(crcarray, 0, 2);
                                 s1.Download_progress(count + i);
+                                LoadPosition = i;
                             }
                             catch (Exception ex)
                             {
