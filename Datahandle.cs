@@ -108,7 +108,7 @@ namespace Serial_IAP
                         s1.restype = s1.LoadFiletype(fi,ref fileID);
                         datalen = 512;
                         UInt32 tlen = (UInt32)fileStream.Length;
-                        s1.State_Text($"等待擦除芯片flash", 2);
+                        s1.State_Text($"正在擦除,请等待......", 2);
                         byte[] sendinfo = new byte[11];
                         sendinfo[0] = 0xaa;
                         sendinfo[1] = 0xb0;
@@ -197,8 +197,9 @@ namespace Serial_IAP
                             else if(readstring.Contains("C"))
                             {
                                 reloadrecord++;
-                                if(reloadrecord>=2)
+                                if(reloadrecord>=3)
                                 {
+                                    s1.State_Text($"检验错误，停止下载，请检查连接后重新下载", 3);
                                     goto ERRORandOK;
                                 }
                                 time = 0;
