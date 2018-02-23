@@ -84,9 +84,12 @@ namespace Serial_IAP
             int LoadPosition = 0;//记录下载的位置
             int reloadrecord = 0;//记录重新下载次数
             Serial s1 = Serial.GetSingle();
+            int prebaud = 0;
+            
             s1.State_Text("", 3);
             int datalen = 0;
             Console.WriteLine($"s1.filelist.count = {Serial.filelist.Count}");
+            prebaud = Serial.SerialSingle.serialPort1.BaudRate;
             try
             {
                 foreach (FileInfo fi in Serial.filelist)
@@ -106,6 +109,7 @@ namespace Serial_IAP
                     if (Exten != ".bin")
                     {
                         int fileID = -1;
+                        Serial.SerialSingle.serialPort1.BaudRate = prebaud;
                         s1.restype = s1.LoadFiletype(fi,ref fileID);
                         datalen = 512;
                         UInt32 tlen = (UInt32)fileStream.Length;
@@ -281,6 +285,7 @@ namespace Serial_IAP
             {
                 s1.State_Text($"Error:{ex.Message}", 3);
                 Delay(100);
+
                 if (s1.serialPort1.IsOpen == false)
                 {
                     try
@@ -308,9 +313,9 @@ namespace Serial_IAP
             {
                 s1.State_Text($"全部下载完成", 3);
             }
-            ERRORandOK:
+ERRORandOK:
             Delay(300);
-
+            Serial.SerialSingle.serialPort1.BaudRate = prebaud;
             readstring = s1.serialPort1.ReadExisting();
             s1.IsLoading = false;
             fileFailed.Clear();
