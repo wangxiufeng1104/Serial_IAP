@@ -38,6 +38,7 @@ namespace Serial_IAP
         
         public Restype restype = Restype.NONE;
         public static Serial SerialSingle = null;
+        public static string softwareversion = " 1.42";
         public static Serial GetSingle()
         {
             if (SerialSingle == null)
@@ -51,6 +52,8 @@ namespace Serial_IAP
         {
             SerialSingle = this;
             InitializeComponent();
+            this.Text = this.Text + softwareversion;
+            
         }
 
         private void Com_PartName_Click(object sender, EventArgs e)

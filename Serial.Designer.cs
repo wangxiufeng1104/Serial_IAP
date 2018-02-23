@@ -150,6 +150,13 @@
             this.com_baud.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.com_baud.FormattingEnabled = true;
             this.com_baud.Items.AddRange(new object[] {
+            "1200",
+            "2400",
+            "4800",
+            "9600",
+            "19200",
+            "38400",
+            "57600",
             "115200",
             "128000",
             "230400",
@@ -160,7 +167,6 @@
             "600000",
             "750000",
             "921600",
-            "",
             ""});
             this.com_baud.Location = new System.Drawing.Point(336, 19);
             this.com_baud.Name = "com_baud";

@@ -139,6 +139,7 @@ namespace Serial_IAP
                             startInf[7] = 0x3C;
                             s1.serialPort1.Write(startInf, 0, 8);
                         }
+                        Serial.SerialSingle.serialPort1.BaudRate = 115200;
                         timer1.Start();
                         time = 0;
                         Delay(30);//延时300ms
