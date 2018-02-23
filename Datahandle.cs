@@ -76,6 +76,7 @@ namespace Serial_IAP
             }
             return u32;
         }
+       
         public void DataHandle_Thread()
         {
             FileStream fileStream = null;
@@ -139,7 +140,9 @@ namespace Serial_IAP
                             startInf[7] = 0x3C;
                             s1.serialPort1.Write(startInf, 0, 8);
                         }
+                        //Serial.SerialSingle.serialPort1.Close();
                         Serial.SerialSingle.serialPort1.BaudRate = 115200;
+                        //Serial.SerialSingle.serialPort1.Open();
                         timer1.Start();
                         time = 0;
                         Delay(30);//延时300ms
@@ -223,7 +226,7 @@ namespace Serial_IAP
                             try
                             {
                                 UInt32 CRCResult1;
-                                System.Buffer.BlockCopy(buffur,0, buffur1,i,count);
+                                System.Buffer.BlockCopy(buffur,i, buffur1,0,count);
                                 CRCResult1 = CRC32(ByteArrayToUInt32Array1(buffur1), count/4);
                                 byte[] crcarray = new byte[2];
                                 crcarray[0] = (byte)(CRCResult1 >> 8);

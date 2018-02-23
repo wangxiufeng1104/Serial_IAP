@@ -220,7 +220,7 @@ namespace Serial_IAP
             toolStripStatusLabel1.Text = "";
             toolStripStatusLabel2.Text = "";
             toolStripStatusLabel3.Text = "";
-            com_baud.SelectedIndex = 0;
+            com_baud.SelectedIndex = 7;
             Control.CheckForIllegalCrossThreadCalls = false;    //取消线线程安全保护模式！
         }
         private void Serial_FormClosing(object sender, FormClosingEventArgs e)
