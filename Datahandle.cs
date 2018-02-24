@@ -148,26 +148,26 @@ namespace Serial_IAP
                             startInf[7] = 0x3C;
                             s1.serialPort1.Write(startInf, 0, 8);
                             Delay(10);
-                        }
-                        Serial.SerialSingle.serialPort1.Close();
-                        Serial.SerialSingle.serialPort1.BaudRate = 115200;
-                        Serial.SerialSingle.serialPort1.Open();
-                        timer1.Start();
-                        time = 0;
-                        Delay(30);//延时300ms
-                        do
-                        {
-
-                            if (time >= 13 * 10)
+                        
+                            Serial.SerialSingle.serialPort1.Close();
+                            Serial.SerialSingle.serialPort1.BaudRate = 115200;
+                            Serial.SerialSingle.serialPort1.Open();
+                            timer1.Start();
+                            time = 0;
+                            Delay(30);//延时300ms
+                            do
                             {
-                                s1.State_Text($"超时0", 3);
-                                time = 0;
-                                timer1.Stop();
-                                goto ERRORandOK;
-                            }
-                            readstring = s1.serialPort1.ReadExisting();
-                        } while (!readstring.Contains("TU"));   //TDO UART
 
+                                if (time >= 13 * 10)
+                                {
+                                    s1.State_Text($"超时0", 3);
+                                    time = 0;
+                                    timer1.Stop();
+                                    goto ERRORandOK;
+                                }
+                                readstring = s1.serialPort1.ReadExisting();
+                            } while (!readstring.Contains("TU"));   //TDO UART
+                        }
                         UInt32 CRCResult = CRC32(ByteArrayToUInt32Array1(buffur), (int)fileStream.Length / 4);
 
                         HeadInf[0] = (byte)'T';

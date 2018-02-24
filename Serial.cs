@@ -35,6 +35,7 @@ namespace Serial_IAP
         public Thread ThreadDataHandleAuto;
         Datahandle datahandle;
         public static List<FileInfo> filelist = new List<FileInfo> { };
+        private int autoloadbaud = 0;
         
         
         public Restype restype = Restype.NONE;
@@ -92,14 +93,13 @@ namespace Serial_IAP
                     添加下载文件.Enabled = true;
                     DelSelect.Enabled = true;
                     ClearFile.Enabled = true;
-                    下载.Enabled = true;
+                    if(AutoLoadCheck.Checked == false)
+                        下载.Enabled = true;
                 }
                 catch(Exception ex)
                 {
                     MessageBox.Show(ex.Message);
-                }
-                //成功打开串口后创建串口监听线程
-                
+                } 
             }
             else
             {
@@ -286,7 +286,6 @@ namespace Serial_IAP
             bool BinExists = false;
             if (filelist.Count == 0)
                 return;
-           
             foreach(FileInfo fi in filelist)
             {
 
@@ -392,12 +391,19 @@ namespace Serial_IAP
             {
                 if(AutoLoadCheck.Checked == true)
                 {
+                    autoloadbaud = serialPort1.BaudRate;
+                    serialPort1.Close();
+                    serialPort1.BaudRate = 115200;
+                    serialPort1.Open();
                     C_Monitor_Thread = new Thread(new ThreadStart(Check_Common));
                     C_Monitor_Thread.Start();
                     下载.Enabled = false;
                 }
                 else
                 {
+                    serialPort1.Close();
+                    serialPort1.BaudRate = autoloadbaud;
+                    serialPort1.Open();
                     C_Monitor_Thread.Abort();
                     下载.Enabled = true;
                 }
