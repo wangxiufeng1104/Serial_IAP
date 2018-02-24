@@ -38,6 +38,7 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.下载 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.AutoLoadCheck = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.com_baud = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -49,7 +50,6 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.AutoLoadCheck = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -79,7 +79,7 @@
             // 
             this.Com_PartName.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Com_PartName.FormattingEnabled = true;
-            this.Com_PartName.Location = new System.Drawing.Point(118, 20);
+            this.Com_PartName.Location = new System.Drawing.Point(118, 18);
             this.Com_PartName.Name = "Com_PartName";
             this.Com_PartName.Size = new System.Drawing.Size(80, 25);
             this.Com_PartName.Sorted = true;
@@ -137,11 +137,22 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "第一步：打开正确的串口";
             // 
+            // AutoLoadCheck
+            // 
+            this.AutoLoadCheck.AutoSize = true;
+            this.AutoLoadCheck.Location = new System.Drawing.Point(380, 20);
+            this.AutoLoadCheck.Name = "AutoLoadCheck";
+            this.AutoLoadCheck.Size = new System.Drawing.Size(75, 21);
+            this.AutoLoadCheck.TabIndex = 6;
+            this.AutoLoadCheck.Text = "自动下载";
+            this.AutoLoadCheck.UseVisualStyleBackColor = true;
+            this.AutoLoadCheck.CheckedChanged += new System.EventHandler(this.AutoLoadCheck_CheckedChanged);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(204, 23);
+            this.label1.Location = new System.Drawing.Point(209, 20);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(51, 20);
             this.label1.TabIndex = 5;
@@ -170,7 +181,7 @@
             "750000",
             "921600",
             ""});
-            this.com_baud.Location = new System.Drawing.Point(279, 20);
+            this.com_baud.Location = new System.Drawing.Point(271, 18);
             this.com_baud.Name = "com_baud";
             this.com_baud.Size = new System.Drawing.Size(98, 25);
             this.com_baud.TabIndex = 4;
@@ -270,17 +281,6 @@
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
-            // 
-            // AutoLoadCheck
-            // 
-            this.AutoLoadCheck.AutoSize = true;
-            this.AutoLoadCheck.Location = new System.Drawing.Point(383, 22);
-            this.AutoLoadCheck.Name = "AutoLoadCheck";
-            this.AutoLoadCheck.Size = new System.Drawing.Size(75, 21);
-            this.AutoLoadCheck.TabIndex = 6;
-            this.AutoLoadCheck.Text = "自动下载";
-            this.AutoLoadCheck.UseVisualStyleBackColor = true;
-            this.AutoLoadCheck.CheckedChanged += new System.EventHandler(this.AutoLoadCheck_CheckedChanged);
             // 
             // Serial
             // 
