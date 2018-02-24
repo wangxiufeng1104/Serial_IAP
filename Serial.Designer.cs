@@ -140,6 +140,7 @@
             // AutoLoadCheck
             // 
             this.AutoLoadCheck.AutoSize = true;
+            this.AutoLoadCheck.Enabled = false;
             this.AutoLoadCheck.Location = new System.Drawing.Point(380, 20);
             this.AutoLoadCheck.Name = "AutoLoadCheck";
             this.AutoLoadCheck.Size = new System.Drawing.Size(75, 21);

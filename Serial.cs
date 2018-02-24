@@ -40,7 +40,7 @@ namespace Serial_IAP
         
         public Restype restype = Restype.NONE;
         public static Serial SerialSingle = null;
-        public static string softwareversion = " 1.42";
+        public static string softwareversion = " 1.43";
         public static Serial GetSingle()
         {
             if (SerialSingle == null)
@@ -95,6 +95,7 @@ namespace Serial_IAP
                     ClearFile.Enabled = true;
                     if(AutoLoadCheck.Checked == false)
                         下载.Enabled = true;
+                    AutoLoadCheck.Enabled = true;
                 }
                 catch(Exception ex)
                 {
@@ -129,7 +130,7 @@ namespace Serial_IAP
                             readstring = serialPort1.ReadExisting();
                         }
                         catch { };
-                    } while (!readstring.Contains("TU"));   //TDO UART
+                    } while (!readstring.Contains("U"));   //TDO UART
                     datahandle = new Datahandle(true);
                     ThreadDataHandleAuto = new Thread(new ThreadStart(datahandle.DataHandle_Thread));
                     ThreadDataHandleAuto.Priority = ThreadPriority.Lowest;
@@ -238,13 +239,17 @@ namespace Serial_IAP
         }
         private void Serial_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(C_Monitor_Thread.IsAlive)
+            if(C_Monitor_Thread != null)
             {
                 C_Monitor_Thread.Abort();
             }
-            if(ThreadDataHandle.IsAlive)
+            if(ThreadDataHandle != null)
             {
-                ThreadDataHandle.Abort(); //下载线程关闭
+                ThreadDataHandle.Abort(); //手动下载线程关闭
+            }
+            if (ThreadDataHandleAuto != null)
+            {
+                ThreadDataHandleAuto.Abort(); //自动下载线程关闭
             }
             serialPort1.Close();//关闭串口，避免串口死掉
             Environment.Exit(0);
@@ -404,7 +409,8 @@ namespace Serial_IAP
                     serialPort1.Close();
                     serialPort1.BaudRate = autoloadbaud;
                     serialPort1.Open();
-                    C_Monitor_Thread.Abort();
+                    if(C_Monitor_Thread.IsAlive)
+                        C_Monitor_Thread.Abort();
                     下载.Enabled = true;
                 }
             }
