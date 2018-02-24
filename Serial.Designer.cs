@@ -49,6 +49,7 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.AutoLoadCheck = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -80,7 +81,7 @@
             this.Com_PartName.FormattingEnabled = true;
             this.Com_PartName.Location = new System.Drawing.Point(118, 20);
             this.Com_PartName.Name = "Com_PartName";
-            this.Com_PartName.Size = new System.Drawing.Size(137, 25);
+            this.Com_PartName.Size = new System.Drawing.Size(80, 25);
             this.Com_PartName.Sorted = true;
             this.Com_PartName.TabIndex = 2;
             this.Com_PartName.SelectedIndexChanged += new System.EventHandler(this.Com_PartName_SelectedIndexChanged);
@@ -123,6 +124,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.AutoLoadCheck);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.com_baud);
             this.groupBox1.Controls.Add(this.Com_PartName);
@@ -139,7 +141,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(261, 22);
+            this.label1.Location = new System.Drawing.Point(204, 23);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(51, 20);
             this.label1.TabIndex = 5;
@@ -168,7 +170,7 @@
             "750000",
             "921600",
             ""});
-            this.com_baud.Location = new System.Drawing.Point(336, 19);
+            this.com_baud.Location = new System.Drawing.Point(279, 20);
             this.com_baud.Name = "com_baud";
             this.com_baud.Size = new System.Drawing.Size(98, 25);
             this.com_baud.TabIndex = 4;
@@ -269,6 +271,17 @@
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
             // 
+            // AutoLoadCheck
+            // 
+            this.AutoLoadCheck.AutoSize = true;
+            this.AutoLoadCheck.Location = new System.Drawing.Point(383, 22);
+            this.AutoLoadCheck.Name = "AutoLoadCheck";
+            this.AutoLoadCheck.Size = new System.Drawing.Size(75, 21);
+            this.AutoLoadCheck.TabIndex = 6;
+            this.AutoLoadCheck.Text = "自动下载";
+            this.AutoLoadCheck.UseVisualStyleBackColor = true;
+            this.AutoLoadCheck.CheckedChanged += new System.EventHandler(this.AutoLoadCheck_CheckedChanged);
+            // 
             // Serial
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -318,6 +331,7 @@
         public System.Windows.Forms.ListBox List_LoadFile;
         public System.IO.Ports.SerialPort serialPort1;
         public System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.CheckBox AutoLoadCheck;
     }
 }
 

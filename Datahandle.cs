@@ -89,6 +89,10 @@ namespace Serial_IAP
             s1.State_Text("", 3);
             int datalen = 0;
             Console.WriteLine($"s1.filelist.count = {Serial.filelist.Count}");
+            if(Serial.filelist.Count == 0)
+            {
+                goto ERRORandOK;
+            }
             prebaud = Serial.SerialSingle.serialPort1.BaudRate;
             try
             {
@@ -320,7 +324,17 @@ ERRORandOK:
             readstring = s1.serialPort1.ReadExisting();
             s1.IsLoading = false;
             fileFailed.Clear();
-            s1.ThreadDataHandle.Abort();
+            try
+            {
+                s1.ThreadDataHandle.Abort();
+            }
+            catch { };
+            try
+            {
+                s1.ThreadDataHandleAuto.Abort();
+            }
+            catch { };
+            
             return;
         }
         public static bool Delay(int delayTime)

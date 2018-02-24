@@ -32,6 +32,7 @@ namespace Serial_IAP
         private Thread C_Monitor_Thread;   //串口监听线程
         public bool IsLoading = false;
         public Thread ThreadDataHandle;
+        public Thread ThreadDataHandleAuto;
         Datahandle datahandle;
         public static List<FileInfo> filelist = new List<FileInfo> { };
         
@@ -55,7 +56,6 @@ namespace Serial_IAP
             this.Text = this.Text + softwareversion;
             
         }
-
         private void Com_PartName_Click(object sender, EventArgs e)
         {
             if(serialPort1.IsOpen)
@@ -63,18 +63,6 @@ namespace Serial_IAP
                 serialPort1.Close();
                 打开串口.Text = "打开串口";
             }
-
-            //RegistryKey keyCom = Registry.LocalMachine.OpenSubKey("Hardware\\DeviceMap\\SerialComm");
-            //if(keyCom != null)
-            //{
-            //    string[] sSubKeys = keyCom.GetValueNames();
-            //    Com_PartName.Items.Clear();
-            //    foreach (string sName in sSubKeys)
-            //    {
-            //        string sValue = (string)keyCom.GetValue(sName);
-            //        Com_PartName.Items.Add(sValue);
-            //    }
-            //}
             string[] str = SerialPort.GetPortNames();
             if (str == null)
             {
@@ -100,18 +88,18 @@ namespace Serial_IAP
                     serialPort1.PortName = Com_PartName.Text;
                     serialPort1.Open();
                     打开串口.Text = "关闭串口";
+                    AutoLoadCheck.Enabled = true;
                     添加下载文件.Enabled = true;
                     DelSelect.Enabled = true;
                     ClearFile.Enabled = true;
-                    下载.Enabled = false;
+                    下载.Enabled = true;
                 }
                 catch(Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
                 //成功打开串口后创建串口监听线程
-                //C_Monitor_Thread = new Thread(new ThreadStart(Check_Common));
-                //C_Monitor_Thread.Start();
+                
             }
             else
             {
@@ -123,9 +111,35 @@ namespace Serial_IAP
                 DelSelect.Enabled = false;
                 ClearFile.Enabled = false;
                 下载.Enabled = false;
+                AutoLoadCheck.Enabled = false;
             }
         }
-        delegate void MyInvoke(bool IsAuto); //下载进度
+
+        private void Check_Common()
+        {
+            string readstring = string.Empty;
+            while (true)
+            {
+                if(serialPort1.IsOpen == true)
+                {
+                    do
+                    {
+                        try
+                        {
+                            readstring = serialPort1.ReadExisting();
+                        }
+                        catch { };
+                    } while (!readstring.Contains("TU"));   //TDO UART
+                    datahandle = new Datahandle(true);
+                    ThreadDataHandleAuto = new Thread(new ThreadStart(datahandle.DataHandle_Thread));
+                    ThreadDataHandleAuto.Priority = ThreadPriority.Lowest;
+                    ThreadDataHandleAuto.Start();
+                    while (ThreadDataHandleAuto.IsAlive) ;
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+        delegate void MyInvoke(bool IsAuto);  //下载进度
         private void Com_PartName_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(serialPort1.IsOpen == false && Com_PartName.Items.Count > 0)
@@ -174,18 +188,17 @@ namespace Serial_IAP
                 file_sort(); //filelist进行排序
                 progressBar1.Value = 0;
                 restype = Restype.NONE;
-                下载.Enabled = true;
             }
         }
         //crc32校验
         private void 下载_Click(object sender, EventArgs e)
         {
             IsLoading = true;
-            //C_Monitor_Thread.Suspend();
             datahandle = new Datahandle(false);
             ThreadDataHandle = new Thread(new ThreadStart(datahandle.DataHandle_Thread));
+            
+            ThreadDataHandle.Priority = ThreadPriority.Highest;
             ThreadDataHandle.Start();
-            //C_Monitor_Thread.Resume();
             IsLoading = false;
         }
         public void Download_progress(int count)
@@ -221,17 +234,17 @@ namespace Serial_IAP
             toolStripStatusLabel2.Text = "";
             toolStripStatusLabel3.Text = "";
             com_baud.SelectedIndex = 7;
-            Control.CheckForIllegalCrossThreadCalls = false;    //取消线线程安全保护模式！
+            Control.CheckForIllegalCrossThreadCalls = false;     //取消线线程安全保护模式！
         }
         private void Serial_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(C_Monitor_Thread!=null)
+            if(C_Monitor_Thread.IsAlive)
             {
                 C_Monitor_Thread.Abort();
             }
-            if(ThreadDataHandle != null)
+            if(ThreadDataHandle.IsAlive)
             {
-                ThreadDataHandle.Abort();//下载线程关闭
+                ThreadDataHandle.Abort(); //下载线程关闭
             }
             serialPort1.Close();//关闭串口，避免串口死掉
             Environment.Exit(0);
@@ -370,6 +383,24 @@ namespace Serial_IAP
             if (Sbaud != "")
             {
                 serialPort1.BaudRate = Convert.ToInt32(Sbaud);
+            }
+        }
+
+        private void AutoLoadCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            if(serialPort1.IsOpen)
+            {
+                if(AutoLoadCheck.Checked == true)
+                {
+                    C_Monitor_Thread = new Thread(new ThreadStart(Check_Common));
+                    C_Monitor_Thread.Start();
+                    下载.Enabled = false;
+                }
+                else
+                {
+                    C_Monitor_Thread.Abort();
+                    下载.Enabled = true;
+                }
             }
         }
     }
